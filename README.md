@@ -36,3 +36,31 @@
   - 코드 변경이 발생하면 자동으로 빌드 및 배포
 - 9 . Visibility
   - 각 마이크로서비스의 상태와 성능을 실시간으로 모니터링
+
+## Spring Cloud란?
+- 분산 시스템(distributed systems)에서 흔히 발생하는 문제를 해결하기 위한 Spring Framework 기반의 도구 모음
+- MSA 구조를 구현하거나 관리할 때 유용한 기능을 제공
+- 다양한 클라우드 제공자와 통합될 수 있으며, 개발자가 복잡한 인프라 문제를 처리하지 않고 비즈니스 로직에 집중할 수 있도록 함
+
+### 주의 사항
+  - Spring Boot + Spring Cloud 형태이다.
+    - 각각의 프레임 워크는 서로의 버전을 맞춰줘야 한다 ( 호환 이슈 )
+
+### 중요 구성 요소
+- Centralized Configuration Management
+  - 환경 설정 서버 : 다양한 마이크로 서버를 하나의 환경 설정 서버를 사용해서 모두 적용하는 것
+    - Spring Cloud Config Server
+- Location Transparency
+  - 서비스 등록 및 위치 확인 
+    - Naming Server ( Eureka )
+- Load Distribution ( Load Balancing )
+  - 로드 밸런싱
+    - Ribbon ( Client Side )
+    - Spring Cloud Gateway  [ 👍 최신 Spring Cloud에서 해당 방법 사용 권장 ]
+- Easier REST Client
+  - FeignClient
+- Visibility and Monitoring
+  - Zipkin Distributed Tracing 
+  - Netflix API gateway
+- Fault Tolerance
+  - Hystrix
