@@ -1,0 +1,18 @@
+server:
+  port: 9081
+
+spring:
+  application:
+    name: user-server
+
+eureka:
+  # Eureka와 관련된 설정을 정의합니다.
+  client:
+    # 현재 애플리케이션을 Eureka 서버에 등록할지 여부를 설정합니다.
+    register-with-eureka: true
+    # Eureka 서버에서 서비스 정보를 가져올지 여부를 설정합니다.
+    fetch-registry: true
+    # Eureka 서버의 URL을 설정합니다.
+    service-url:
+      # Eureka 서버의 기본 주소를 설정합니다.
+      defaultZone: http://127.0.0.1:8761/eureka
