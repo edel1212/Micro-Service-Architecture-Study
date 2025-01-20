@@ -1,12 +1,20 @@
 server:
-  port: ${SERVER_PORT}
+  port: 0
 
 spring:
   application:
     name: user-server
 
 eureka:
-  # Eureka와 관련된 설정을 정의합니다.
+  # Eureka instance 관련된 설정을 정의합니다.
+  instance: 
+    # instance-id 설정
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+    # Heartbeat 설정
+    lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
+    lease-expiration-duration-in-seconds: 10 # Heartbeat 없을 때 제거까지 걸리는 시간 (기본값: 90초)
+
+  # Eureka client 관련된 설정을 정의합니다.
   client:
     # 현재 애플리케이션을 Eureka 서버에 등록할지 여부를 설정합니다.
     register-with-eureka: true
@@ -17,7 +25,3 @@ eureka:
       # Eureka 서버의 기본 주소를 설정합니다.
       defaultZone: http://127.0.0.1:8761/eureka
 
-  # HeaderBeat 주기 주정
-  instance:
-    lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
-    lease-expiration-duration-in-seconds: 10 # Heartbeat 없을 때 제거까지 걸리는 시간 (기본값: 90초)

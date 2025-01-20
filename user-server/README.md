@@ -53,3 +53,32 @@ public class UserServerApplication {
 	}
 }
 ```
+
+## 2 ) Random Port 적용 방법
+- Auto Scaling이 필요할 경우 하나하나 Port 번호를 지정해 줄수 없기에 사용한다.
+
+### 2 - 1 ) 설정 방법
+#### application.yml
+- port를 2번으로 지정하면 랜덤하게 포트번호가 지정되어 서버가 실행된다.
+```yaml
+server:
+  port: 0
+```
+
+### 2 - 2 ) 문제 사항
+- 2 - 1 방식으로 여러개의 서버를 기동해도 **Discovery Server(Eureka Server)**에는 하나의 서버만 기동되어 보인다.
+  - EurekaServer 자체가 서버 기동 시 입력된 **env 파일 기반으로 등록되기 때문**이다
+    - ![img.png](img.png)
+
+### 2 - 3 ) 해결 방법
+- **instance-id** 설정을 통해 호스트명:UUID를 통해 인스턴스 아이디를 사용 할 수있다.
+  - 실제로 사용하는 포트는 0으로 보여도 마우스를 올리면 기존 port가 연결 되어있기에 **아이디만** UUID를 **통해 중복을 제거**한 것
+![img_1.png](img_1.png)
+#### application.yml
+```yaml
+eureka:
+  # Eureka instance 관련된 설정을 정의합니다.
+  instance: 
+    # instance-id 설정
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+```
