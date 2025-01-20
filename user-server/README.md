@@ -20,7 +20,7 @@ dependencies {
   - defaultZone : EurekaServer 도메인 지정
 ```yaml
 server:
-  port: 9081
+  port: ${SERVER_PORT}
 
 spring:
   application:
@@ -37,6 +37,11 @@ eureka:
     service-url:
       # Eureka 서버의 기본 주소를 설정합니다.
       defaultZone: http://127.0.0.1:8761/eureka
+
+  # HeaderBeat 주기 주정
+  instance:
+    lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
+    lease-expiration-duration-in-seconds: 10 # Heartbeat 없을 때 제거까지 걸리는 시간 (기본값: 90초)
 ```
 ### 1 - 3 ) application.java
 - SpringBoot 2.x 버전에서는 명시적으로`@EurekaClient` 지정이 필요했으나 3.x 버전부터는 불필요

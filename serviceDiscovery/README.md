@@ -16,7 +16,7 @@
 -  4 . 사용자는 대상 서버에서 데이터를 전달 받음 
 ![img.png](img.png)
 
-## 3 ) 설정 방법
+## 3 ) Discovery Server(Eureka Server) 설정 방법
 
 ### 3 - 1 ) build.gradle
 - 다른 dependencies 추가 필요 없이 **eureka** 하나만 추가해주면 된다. 
@@ -55,3 +55,6 @@ public class EcoomerceApplication {
 	}
 }
 ```
+
+## 4 ) Discovery Client(Eureka Client) 설정 방법
+[참고](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/user-server)
