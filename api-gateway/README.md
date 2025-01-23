@@ -12,3 +12,9 @@
 - 로깅, 추적, 상관 관계
 - 헤더, 쿼리 문자열 및 청구 변환
 - IP 허용 목록으로 접근 제어
+
+## Spring Cloud Gateway
+```properties
+ℹ️ Zuul Project는 Deprecated되어 더이상 사용이 불가능
+   - Spring에서도 Spring Cloud Gateway 사용을 권장👍
+```
