@@ -8,14 +8,13 @@ spring:
     gateway:
       routes:
         - id: first-service
-          url: http://loalhost:8081/
+          uri: http://localhost:8081/
           predicates:
             - Path=/first-service/**
         - id: second-service
-          url: http://loalhost:8082/
+          uri: http://localhost:8082/
           predicates:
             - Path=/second-service/**
-
 
 eureka:
   client:
@@ -23,3 +22,8 @@ eureka:
     fetch-registry: false
     service-url:
       defaultZone: http://localhost:8761/eureka
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
