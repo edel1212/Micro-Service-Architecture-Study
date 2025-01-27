@@ -8,5 +8,5 @@ spring:
 # ℹ️ eurek 설정 - Discovery Server 이기에 자기 자신을 등록할 필요가 없기에 false 처리 ( 기본 값 : true )
 eureka:
   client:
-      register-with-eureka: false
-      fetch-registry: false
+    register-with-eureka: false
+    fetch-registry: false
