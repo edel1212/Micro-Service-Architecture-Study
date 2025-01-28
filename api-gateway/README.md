@@ -23,6 +23,10 @@
 ### 2 - 1 ) 설정
 
 #### dependencies
+```properties
+# ✅ Spring Cloud Gateway는 비동기, 논블로킹 방식으로 동작하는 API Gateway를 제공
+#    - 이는 Netty 기반의 비동기 웹 서버를 사용하여 높은 성능과 확장성을 제공함
+```
 - 😅 살질... 
   - `gateway-mvc`를 사용해서 적용하면 gateway-route가 정상 작동하지 않음 그냥 `gateway`를 사용해야함
   - 이유
@@ -30,6 +34,9 @@
       - 특별한 이유가 없는 한 **Reactive 기반**의 Spring Cloud Gateway를 **사용하는 것이 권장**
     - `spring-cloud-starter-gateway-mvc`는 WebFlux 기반의 Spring Cloud Gateway의 설정 방식을 지원하지 않음
       - **application.yml에 작성한 설정이 무시됨**
+      - Spring MVC의 @RestController와 @RequestMapping을 사용하여 **라우팅을 구성해야 함**
+        - 대상 서비스로 **요청을 포워딩하는 방식**
+    - spring-cloud-starter-gateway는 비동기, 논블로킹 방식의 고성능 API Gateway를 제공
 ```groovy
 dependencies {
     // ❌ implementation 'org.springframework.cloud:spring-cloud-starter-gateway-mvc'
@@ -37,6 +44,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 }
 ```
+
+
 
 #### application.yml
 - 핵심 설정은 `cloud` 부분 설정임
