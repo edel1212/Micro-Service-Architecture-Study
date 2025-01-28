@@ -7,12 +7,10 @@ spring:
   cloud:
     gateway:
       routes:
-        # ??? ?? for first-service
         - id: first-service
           uri: http://localhost:8081
           predicates:
             - Path=/first-service/**
-        # ??? ?? for second-service
         - id: second-service
           uri: http://localhost:8082
           predicates:

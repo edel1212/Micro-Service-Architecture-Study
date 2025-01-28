@@ -23,16 +23,25 @@
 ### 2 - 1 ) 설정
 
 #### dependencies
+- 😅 살질... 
+  - `gateway-mvc`를 사용해서 적용하면 gateway-route가 정상 작동하지 않음 그냥 `gateway`를 사용해야함
+  - 이유
+    - spring-cloud-starter-gateway는 **Reactive 환경(WebFlux)을 기본**으로 하며, 대부분의 기능은 이 환경에서만 완전하게 동작
+      - 특별한 이유가 없는 한 **Reactive 기반**의 Spring Cloud Gateway를 **사용하는 것이 권장**
+    - `spring-cloud-starter-gateway-mvc`는 WebFlux 기반의 Spring Cloud Gateway의 설정 방식을 지원하지 않음
+      - **application.yml에 작성한 설정이 무시됨**
 ```groovy
 dependencies {
-    implementation 'org.springframework.cloud:spring-cloud-starter-gateway-mvc'
+    // ❌ implementation 'org.springframework.cloud:spring-cloud-starter-gateway-mvc'
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 ```
 
 #### application.yml
-- 핵심 설정은 `cloud` 부분 설정이다. 연결에 필요한 URI를 매칭힘 
+- 핵심 설정은 `cloud` 부분 설정임
+- 연결에 필요한 **URI**를 통해 매칭 **URL ❌**
+- id 값은 사용하려는 micro service와 달라도 **문제가 없음**  
 ```yaml
 server:
   port: 8000
@@ -43,12 +52,14 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: first-service
-          url: http://loalhost:8081/
+        # 라우팅 설정 for first-service
+        - id: first-servic
+          uri: http://localhost:8081
           predicates:
             - Path=/first-service/**
-        - id: second-service
-          url: http://loalhost:8082/
+        # 라우팅 설정 for second-service
+        - id: second-serviceㄴ
+          uri: http://localhost:8082
           predicates:
             - Path=/second-service/**
 
@@ -57,6 +68,6 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+  service-url:
+    defaultZone: http://localhost:8761/eureka/
 ```
