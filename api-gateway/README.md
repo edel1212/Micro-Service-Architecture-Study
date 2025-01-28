@@ -48,9 +48,13 @@ dependencies {
 
 
 #### application.yml
-- 핵심 설정은 `cloud` 부분 설정임
-- 연결에 필요한 **URI**를 통해 매칭 **URL ❌**
-- id 값은 사용하려는 micro service와 달라도 **문제가 없음**  
+- 핵심 설정은 `cloud` 부분 설정
+- id : 대상 route id 부여
+  - route 대상 service name 과 달라도 **문제가 없음**  
+- uri :  요청을 넘길 service uri
+  - 연결에 필요한 **URI**를 통해 매칭 **URL ❌**
+- predicates : gateway가 전달 route 할 지정 path
+- filters : gateway에서 추가 처리 할 필터 내용 
 ```yaml
 server:
   port: 8000
@@ -61,18 +65,20 @@ spring:
   cloud:
     gateway:
       routes:
-        # 라우팅 설정 for first-service
-        - id: first-servic
+        - id: first-service
           uri: http://localhost:8081
           predicates:
             - Path=/first-service/**
-        # 라우팅 설정 for second-service
-        - id: second-serviceㄴ
+          filters:
+            - AddRequestHeader=first-request, first-request-header-using-yml-file
+            - AddResponseHeader=first-response, first-response-header-using-yml-file
+        - id: second-service
           uri: http://localhost:8082
           predicates:
             - Path=/second-service/**
-
-
+          filters:
+            - AddRequestHeader=second-request, second-request-header-using-yml-file
+            - AddResponseHeader=second-response, second-response-header-using-yml-file
 eureka:
   client:
     register-with-eureka: false
