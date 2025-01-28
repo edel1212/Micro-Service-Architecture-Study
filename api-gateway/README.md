@@ -20,7 +20,7 @@
    - Spring에서도 Spring Cloud Gateway 사용을 권장👍
 ```
 
-### 2 - 1 ) 설정
+### 2 - 1 ) 설정 - application.yml 사용
 
 #### dependencies
 ```properties
@@ -79,4 +79,53 @@ eureka:
     fetch-registry: false
   service-url:
     defaultZone: http://localhost:8761/eureka/
+```
+
+### 2 - 1 ) 설정 - @Configuration 사용
+```properties
+# ✅ dependencies 설정은 동일
+#    - 기존의 설정은 동일하나 application 설정 부분을 Java로 변경
+```
+#### application.yml
+- port 및 eureka 설정 부분 skip 
+```yaml
+spring:
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: first-service
+#          uri: http://localhost:8081
+#          predicates:
+#            - Path=/first-service/**
+#        - id: second-service
+#          uri: http://localhost:8082
+#          predicates:
+#            - Path=/second-service/**
+```
+#### Config class
+- Builder Pattern을 사용해서 등록
+- path    : Gateway에 들어오는 요청 중 어떠한 path를 route 할지 지정
+- filters : 원하는 filter 등록
+- uri     : 요청을 넘길  service uri 등록 
+```java
+@Configuration
+public class FilterConfig {
+    @Bean
+    public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder){
+        return routeLocatorBuilder.routes()
+                .route( r
+                            // gateway에 해당 path 요청이 들어올 경우
+                            -> r.path("/first-service/**")
+                            // 필터 사용
+                            .filters( f -> f.addRequestHeader("first-request", "first-request-header")
+                                            .addResponseHeader("first-response", "first-response-header"))
+                            // 해당 uri로 이동
+                            .uri("http://localhost:8081"))
+                .route( r -> r.path("/second-service/**")
+                        .filters( f -> f.addRequestHeader("second-request", "second-request-header")
+                                .addResponseHeader("second-response", "second-response-header"))
+                        .uri("http://localhost:8082"))
+                .build();
+    }
+}
 ```
