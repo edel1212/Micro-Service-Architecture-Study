@@ -154,11 +154,19 @@ public class FilterConfig {
   - return 시 비동기 통신을 하기에 **Mono or Flux**를 사용해 반환
 
 ### CustomFilter Class
+- Filter에서 사용될 name을 변경하기 위해서는 `name()` Method를 Override 구현해 줘야한다.
+  - Default Name은 **해당 설정 Class의 이름을 따름**
 ```java
 @Log4j2
 @Component
 public class CustomFilter extends AbstractGatewayFilterFactory{
-    @Override
+
+//  @Override
+//  public String name() {
+//    return "해당 문자열 내 변경 이름 작성";
+//  }
+
+  @Override
     public GatewayFilter apply(Object config) {
         return (exchange, chain) -> {
             // PreFilter Business Logic 적용 가능
@@ -176,7 +184,8 @@ public class CustomFilter extends AbstractGatewayFilterFactory{
 ```
 
 ### Application.yml
-- 이전 설정에서 **filters** 부분 내 Custom Class Name만 추가 됨 
+- 이전 설정과 전부 동일 **filters** 부분 내 Custom Class Name만 추가 
+  - Default Custom Class Name은 **설정한 Class Name 과 같음**
 ```yaml
 spring:
   cloud:
