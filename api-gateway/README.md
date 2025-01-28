@@ -135,3 +135,67 @@ public class FilterConfig {
     }
 }
 ```
+
+## 3 ) Gateway CustomFilter
+- `AbstractGatewayFilterFactory`를 상속하여 진행함
+  - 추상 클래스이므로 `GatewayFilter apply`**구현을 강제함**
+- 람다식으로 구성되며 `(exchange, chain)`는 **핵심 컴포넌트**이다.
+  - exchange (ServerWebExchange)
+    - 타입: ServerWebExchange
+    - 의미: 현재 HTTP **요청과 응답에 대한 모든 정보 및 세션 정보**를 담고 있는 객체 
+    - 요청/응답 수정: 요청 헤더, 응답 헤더 등을 **수정할 수 있음**
+  - chain (GatewayFilterChain)
+    - 타입: GatewayFilterChain
+    - 의미: **현재 필터 체인을 나타내는 객체**입니다.
+      - 필터 체인은 여러 필터가 순차적으로 실행되는 구조를 의미함
+    - 다음 필터 호출: chain.filter(exchange)를 호출하여 **다음 필터로 요청을 전달**
+    - 필터 체인 종료: chain.filter(exchange)를 호출하지 않으면 **필터 체인이 종료**
+- 체인형식을 **return 전**에는 PreFilter 로직 작성할 수 있고 **return 할때**는 PostFilter 로직을 작성 할 수 있다.
+  - return 시 비동기 통신을 하기에 **Mono or Flux**를 사용해 반환
+
+### CustomFilter Class
+```java
+@Log4j2
+@Component
+public class CustomFilter extends AbstractGatewayFilterFactory{
+    @Override
+    public GatewayFilter apply(Object config) {
+        return (exchange, chain) -> {
+            // PreFilter Business Logic 적용 가능
+            ServerHttpRequest serverHttpRequest   = exchange.getRequest();
+            ServerHttpResponse serverHttpResponse = exchange.getResponse();
+            log.info("Pre Filter - Request Id is ? ::: {}", serverHttpRequest.getId());
+
+            return chain.filter(exchange).then(Mono.fromRunnable(()->{
+                // PostFilter Business Logic 적용 가능
+                log.info("Post Filter - Http Status ? :: {}", serverHttpResponse.getStatusCode());
+            }));
+        } ;
+    }
+}
+```
+
+### Application.yml
+- 이전 설정에서 **filters** 부분 내 Custom Class Name만 추가 됨 
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: first-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/first-service/**
+          filters:
+            - AddRequestHeader=first-request, first-request-header-using-yml-file
+            - AddResponseHeader=first-response, first-response-header-using-yml-file
+            - CustomFilter
+        - id: second-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/second-service/**
+          filters:
+            - AddRequestHeader=second-request, second-request-header-using-yml-file
+            - AddResponseHeader=second-response, second-response-header-using-yml-file
+            - CustomFilter
+```
