@@ -137,6 +137,9 @@ public class FilterConfig {
 ```
 
 ## 3 ) Gateway CustomFilter
+```properties
+# ℹ️ 해당 필터는 원하는 라우터 정보에 "개벌적"으로 등록해 줘야함
+```
 - `AbstractGatewayFilterFactory`를 상속하여 진행함
   - 추상 클래스이므로 `GatewayFilter apply`**구현을 강제함**
 - 람다식으로 구성되며 `(exchange, chain)`는 **핵심 컴포넌트**이다.
@@ -183,7 +186,7 @@ public class CustomFilter extends AbstractGatewayFilterFactory{
 }
 ```
 
-### Application.yml
+### 3 - 1 ) Application.yml - 설정 방법
 - 이전 설정과 전부 동일 **filters** 부분 내 Custom Class Name만 추가 
   - Default Custom Class Name은 **설정한 Class Name 과 같음**
 ```yaml
@@ -207,4 +210,34 @@ spring:
             - AddRequestHeader=second-request, second-request-header-using-yml-file
             - AddResponseHeader=second-response, second-response-header-using-yml-file
             - CustomFilter
+```
+
+### 3 - 2 ) ConfigFilter Class - 설정 방법
+- CustomFilter를 의존성 주입 후 사용하면 된다.
+- apply() 메서드의 매개변수로 `new Object()`가 아닌 실제 필요한 구성 객체를 전달하고 싶다면 해당 Custom Filter class 내 제네릭 지정 생성자 등록 필요
+
+#### FilterConfig Class
+```java
+@RequiredArgsConstructor
+@Configuration
+public class FilterConfig {
+
+    private final CustomFilter customFilter;
+
+    @Bean
+    public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder){
+        return routeLocatorBuilder.routes()
+                .route( r
+                            -> r.path("/first-service/**")
+                            .filters( f -> f.addRequestHeader("first-request", "first-request-header")
+                                            .addResponseHeader("first-response", "first-response-header")
+                                    .filter(customFilter.apply(new Object())))
+                            .uri("http://localhost:8081"))
+                .build();
+    }
+}
+```
+## 4 ) Gateway GlobalFilter
+```properties
+# ℹ️ Custom Filter와 비교해서 "가장 먼저" 시작하고 "가장 마지막"에 종료한다.
 ```
