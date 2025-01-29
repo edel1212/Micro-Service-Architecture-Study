@@ -9,7 +9,7 @@ spring:
       default-filters:
         - name: GlobalFilter
           args:
-            baseMessage: Spring Cloud Global Filter Setting - using yml
+            baseMessage: Spring Cloud Global Filter Setting - only used to yml
             preLogger: true
             postLogger: true
       routes:
@@ -18,18 +18,19 @@ spring:
           predicates:
             - Path=/first-service/**
           filters:
-            - AddRequestHeader=first-request, first-request-header-using-yml-file
-            - AddResponseHeader=first-response, first-response-header-using-yml-file
             - CustomFilter
         - id: second-service
           uri: http://localhost:8082
           predicates:
             - Path=/second-service/**
           filters:
-            - AddRequestHeader=second-request, second-request-header-using-yml-file
-            - AddResponseHeader=second-response, second-response-header-using-yml-file
-            - CustomFilter
-
+            # args를 적용하기 위햐서는 "name:"을 사용해줘야 함
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                baseMessage: Hi~~~~ Logging Filter Setting - using yml
+                preLogger: true
+                postLogger: true
 
 eureka:
   client:

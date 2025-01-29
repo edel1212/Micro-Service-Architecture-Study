@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Log4j2
 @RequiredArgsConstructor
-@Configuration
+//@Configuration
 public class FilterConfig {
 
     private final CustomFilter customFilter;
 
-    @Bean
+    //@Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder){
         return routeLocatorBuilder.routes()
                 .route( r
