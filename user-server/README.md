@@ -18,6 +18,8 @@ dependencies {
   - register-with-eureka :  현재 애플리케이션을 Eureka 서버에 등록 여부를 설정
   - fetch-registry : 다른 MSA Server의 정보를 받아욜지 여부 설정
   - defaultZone : EurekaServer 도메인 지정
+- ✨ 추가 ) CLI를 통해 Port 동적 할당 방법
+  - `./gradlew bootRun --args='--server.port=9003'`를 사용하면 `${SERVER_PORT}`를 사용하지 않고도 포트 지정 가능 
 ```yaml
 server:
   port: ${SERVER_PORT}
