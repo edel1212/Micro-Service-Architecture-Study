@@ -21,7 +21,7 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
 
     @Override
     public GatewayFilter apply(LoggingFilter.Config config) {
-        // GatewayFilter Interface를 구현한 class인 OrderedGatewayFilter 사용 방법
+        // 1 . 첫번째 인자는 Interface에서 요구하는 함수 인 filter()를 주입
         GatewayFilter gatewayFilter = new OrderedGatewayFilter( (exchange, chain) -> {
             ServerHttpRequest serverHttpRequest   = exchange.getRequest();
             ServerHttpResponse serverHttpResponse = exchange.getResponse();
@@ -34,6 +34,7 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
                     log.info("Logging Post Filter - Http Status ? :: {}", serverHttpResponse.getStatusCode());;
                 }
             }));
+            // 2 . 순서 지정
         }, Ordered.HIGHEST_PRECEDENCE );
 
         return gatewayFilter;

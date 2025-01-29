@@ -362,3 +362,72 @@ public class FilterConfig {
   
 }
 ```
+
+## 5 ) OrderedGatewayFilter
+- GatewayFilter는 Interface이며 해당 OrderedGatewayFilter는 해당 **Interface를 구현한 class**다
+  - 생성자 메서드 내 요구 파타미터 `new OrderedGatewayFilter( GlobalFilter, int )`
+    - 첫번째 인자 값 구현 메서드 : `Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain);`
+    - 두번째 인자 값 : 인트
+- 생성자 마지막 메서드 마지막 인자의 값에 따라 **Filter 순서를 지정** 할 수 있다.
+  - default-filter 보다 먼저 작용하게 할 수 도 있다
+
+### OrderedGatewayFilter Class
+```java
+@Log4j2
+@Component
+public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Config>{
+
+    public LoggingFilter(){
+        super(LoggingFilter.Config.class);
+    }
+
+    @Override
+    public GatewayFilter apply(LoggingFilter.Config config) {
+        // 1 . 첫번째 인자는 Interface에서 요구하는 함수 인 filter()를 주입
+        GatewayFilter gatewayFilter = new OrderedGatewayFilter( (exchange, chain) -> {
+            ServerHttpRequest serverHttpRequest   = exchange.getRequest();
+            ServerHttpResponse serverHttpResponse = exchange.getResponse();
+            log.info("Logging Pre Filter - baseMessage ? ::: {}", config.getBaseMessage());
+            if(config.isPreLogger()){
+                log.info("Logging Filter  -> request Id ? ::: {}",serverHttpRequest.getId());
+            }
+            return chain.filter(exchange).then(Mono.fromRunnable(()->{
+                if(config.isPostLogger()){
+                    log.info("Logging Post Filter - Http Status ? :: {}", serverHttpResponse.getStatusCode());;
+                }
+            }));
+            // 2 . 순서 지정
+        }, Ordered.HIGHEST_PRECEDENCE );
+
+        return gatewayFilter;
+    }
+
+    @Data
+    public static class Config{
+        private String baseMessage;
+        private boolean preLogger;
+        private boolean postLogger;
+    }
+}
+```
+
+### application.yml
+- args를 사용해서 값을 전달 하기 위해서는 `name:`를 **꼭 사용해서 Bean 이름을 지정**해 줘야함
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: second-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/second-service/**
+          filters:
+            # args를 적용하기 위햐서는 "name:"을 사용해줘야 함
+            - name: CustomFilter
+            - name: LoggingFilter
+              args:
+                baseMessage: Hi~~~~ Logging Filter Setting - using yml
+                preLogger: true
+                postLogger: true
+```
