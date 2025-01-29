@@ -2,18 +2,20 @@ package com.yoo.gateway_server.config;
 
 import com.yoo.gateway_server.filter.CustomFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@Log4j2
 @RequiredArgsConstructor
-//@Configuration
+@Configuration
 public class FilterConfig {
 
     private final CustomFilter customFilter;
 
-  //  @Bean
+    @Bean
     public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder){
         return routeLocatorBuilder.routes()
                 .route( r
@@ -28,8 +30,22 @@ public class FilterConfig {
                 .route( r -> r.path("/second-service/**")
                         .filters( f -> f.addRequestHeader("second-request", "second-request-header")
                                 .addResponseHeader("second-response", "second-response-header")
-                                .filter(customFilter.apply(new Object())))
+                                .filter(customFilter.apply(new Object()))) // CustomFilter 적용
                         .uri("http://localhost:8082"))
                 .build();
     }
+
+//    @Bean
+//    public GlobalFilter globalFilterConfig() {
+//        return (exchange, chain) -> {
+//            // PreFilter Business Logic 적용 가능
+//            ServerHttpRequest serverHttpRequest   = exchange.getRequest();
+//            ServerHttpResponse serverHttpResponse = exchange.getResponse();
+//            log.info("Global Pre Filter - baseMessage ? ::: {}");
+//            return chain.filter(exchange).then(Mono.fromRunnable(()->{
+//                    log.info("Global Post Filter End - Http Status ? :: {}", serverHttpResponse.getStatusCode());;
+//            }));
+//        } ;
+//    }
+
 }
