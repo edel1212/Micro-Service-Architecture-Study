@@ -241,3 +241,124 @@ public class FilterConfig {
 ```properties
 # ℹ️ Custom Filter와 비교해서 "가장 먼저" 시작하고 "가장 마지막"에 종료한다.
 ```
+
+### GlobalFilter Class
+- 기존 CustomFilter와 구조는 크게 **다르지 않음**
+- `apply(Object object)` -> `apply(GlobalFilter.Config config)`가 다름
+  - 실제 **필요한 구성 객체를 전달**하는 방법을 사용
+- #### 적용 방법 
+  - 1 . `AbstractGatewayFilterFactory<T>` 해당 Generic에 구성체 Class 지정
+  - 2 . 생성자 사용하여 부모 추상 클래스에 구성 객체 Class를 `super()`로 주입
+  - 3 . 해당 구성채 Class의 값 주입은 **application.yml 혹은 Java Code 통해 주입 가능**
+```java
+@Log4j2
+@Component
+public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Config>{
+
+    public GlobalFilter(){ super(GlobalFilter.Config.class); }
+
+    @Override
+    public GatewayFilter apply(GlobalFilter.Config config) {
+        return (exchange, chain) -> {
+            // PreFilter Business Logic 적용 가능
+            ServerHttpRequest serverHttpRequest   = exchange.getRequest();
+            ServerHttpResponse serverHttpResponse = exchange.getResponse();
+            log.info("Global Pre Filter - baseMessage ? ::: {}", config.getBaseMessage());
+            if(config.isPreLogger()){
+                log.info("Global Filter Start -> request Id ? ::: {}",serverHttpRequest.getId());
+            }
+            return chain.filter(exchange).then(Mono.fromRunnable(()->{
+                if(config.isPostLogger()){
+                    log.info("Global Post Filter End - Http Status ? :: {}", serverHttpResponse.getStatusCode());;
+                }
+            }));
+        } ;
+    }
+
+    @Data
+    public static class Config{
+        private String baseMessage;
+        private boolean preLogger;
+        private boolean postLogger;
+    }
+}
+```
+
+### 4 - 0 ) default-filters 와 global-filter
+| 특성                     | `default-filters`                        | `GlobalFilter`                            |
+|------------------------|-----------------------------------------|------------------------------------------|
+| **설정 위치**             | `application.yml` 또는 `application.properties`에서 설정 | Java 코드에서 `@Bean`으로 설정           |
+| **적용 범위**             | 모든 라우트에 자동 적용                 | 모든 라우트에 전역적으로 적용           |
+| **설정 방식**             | YAML 파일에서 선언                     | Java 클래스에서 `@Bean`을 통해 선언     |
+| **우선순위**               | 우선순위를 명시적으로 설정할 수 없음    | `getOrder()` 메서드를 통해 우선순위 설정 가능 |
+
+
+### 4 - 1 ) Application.yml - 설정 방법
+- `default-filters`를 통해 지정
+  - `args`를 사용하여 필요 구성 객체 내 필드 값 주입
+```yaml
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter
+          args:
+            baseMessage: Spring Cloud Global Filter Setting - using yml
+            preLogger: true
+            postLogger: true
+      routes:
+        - id: first-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/first-service/**
+          filters:
+            - CustomFilter
+```
+
+### 4 - 2 ) ConfigFilter Class - 설정 방법
+- `GlobalFilter`를 사용해 지정
+  - default-filters와 순서가 다르게 진행 CustomFilter -> GlobalFilter 순서로 진행
+  - 변경이 필요할 경우 순서를 바꿔서 진행하도록 함
+    - [참고](https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway/global-filters.html)
+```java
+@RequiredArgsConstructor
+@Configuration
+public class FilterConfig {
+
+  private final CustomFilter customFilter;
+
+  @Bean
+  public RouteLocator gatewayRoutes(RouteLocatorBuilder routeLocatorBuilder){
+    return routeLocatorBuilder.routes()
+            .route( r
+                    // gateway에 해당 path 요청이 들어올 경우
+                    -> r.path("/first-service/**")
+                    // 필터 사용
+                    .filters( f -> f.addRequestHeader("first-request", "first-request-header")
+                            .addResponseHeader("first-response", "first-response-header")
+                            .filter(customFilter.apply(new Object())))
+                    // 해당 uri로 이동
+                    .uri("http://localhost:8081"))
+            .route( r -> r.path("/second-service/**")
+                    .filters( f -> f.addRequestHeader("second-request", "second-request-header")
+                            .addResponseHeader("second-response", "second-response-header")
+                            .filter(customFilter.apply(new Object()))) // CustomFilter 적용
+                    .uri("http://localhost:8082"))
+            .build();
+  }
+
+  @Bean
+  public GlobalFilter globalFilterConfig() {
+    return (exchange, chain) -> {
+      // PreFilter Business Logic 적용 가능
+      ServerHttpRequest serverHttpRequest   = exchange.getRequest();
+      ServerHttpResponse serverHttpResponse = exchange.getResponse();
+      log.info("Global Pre Filter - baseMessage ? ::: {}");
+      return chain.filter(exchange).then(Mono.fromRunnable(()->{
+        log.info("Global Post Filter End - Http Status ? :: {}", serverHttpResponse.getStatusCode());;
+      }));
+    } ;
+  }
+  
+}
+```
