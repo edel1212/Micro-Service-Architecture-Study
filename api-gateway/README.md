@@ -433,14 +433,22 @@ spring:
 ```
 
 
-## 6 ) Eureka 연동
+## 6 ) Eureka 연동 - Load Balancing
 ```yaml
 # ℹ️ 기본적으로 Eureka Discover Server가 기동되어 있어야 함
 #    - Gateway server 및 rote 대상 Server들은 Eureka Client 사용 설정이 되어 있어야 한다.
 ```
+- Route 대상이 되는 **Port를 Random**으로 해도 Gateway에서는 해당 Service를 Discovery Service에서 할당한 Name으로 찾기에 문제가 없다.
+- Gateway Server 자체적으로 로드 밸런싱을 지원하며, 같은 이름의 Service가 여러개의 포트로 연결 되었을 경우 **라운드 로빈 방식으로 분산**한다.
+  - 무중단 배포를 원할 경우 **heartbeat 주기를 짧게** 잡아 **Discovery Service에서 제외** 시켜줘야 한다.
 
 ### Sample Server A - application.yml
+- Random port 적용
+  - 그에 따른 Discovery Service 적용을 위함 instance-id 변경
 ```yaml
+server:
+  port: 0
+
 spring:
   application:
     name: yoo-first-service
@@ -451,6 +459,9 @@ eureka:
     fetch-registry: true
   service-url:
     defaultZone: http://localhost:8761/eureka
+  instance:
+    # instance-id 설정
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 ```
 
 ### Gateway Server - application.yml
