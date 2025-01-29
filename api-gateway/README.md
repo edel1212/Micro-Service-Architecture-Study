@@ -376,7 +376,7 @@ public class FilterConfig {
 @Log4j2
 @Component
 public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Config>{
-
+법
     public LoggingFilter(){
         super(LoggingFilter.Config.class);
     }
@@ -430,4 +430,51 @@ spring:
                 baseMessage: Hi~~~~ Logging Filter Setting - using yml
                 preLogger: true
                 postLogger: true
+```
+
+
+## 6 ) Eureka 연동
+```yaml
+# ℹ️ 기본적으로 Eureka Discover Server가 기동되어 있어야 함
+#    - Gateway server 및 rote 대상 Server들은 Eureka Client 사용 설정이 되어 있어야 한다.
+```
+
+### Sample Server A - application.yml
+```yaml
+spring:
+  application:
+    name: yoo-first-service
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+  service-url:
+    defaultZone: http://localhost:8761/eureka
+```
+
+### Gateway Server - application.yml
+- uri **지정 방식이 변경** 된다.
+  - 기존 http://ip:port -> lb://**대상서버의 application name**  
+```yaml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: first-service
+          uri: lb://YOO-FIRST-SERVICE
+          predicates:
+            - Path=/first-service/**
+          filters:
+            - CustomFilter
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+  service-url:
+    defaultZone: http://localhost:8761/eureka
+
 ```
