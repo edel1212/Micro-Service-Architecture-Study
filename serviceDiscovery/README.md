@@ -57,4 +57,4 @@ public class EcoomerceApplication {
 ```
 
 ## 4 ) Discovery Client(Eureka Client) 설정 방법
-[참고](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/user-server)
+[참고](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/eureka-client)
