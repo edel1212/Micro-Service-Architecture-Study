@@ -3,16 +3,16 @@ server:
 
 spring:
   application:
-    name: user-server
+    name: user-service
 
 eureka:
   # Eureka instance 관련된 설정을 정의합니다.
   instance: 
     # instance-id 설정
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
     # Heartbeat 설정
-    lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
-    lease-expiration-duration-in-seconds: 10 # Heartbeat 없을 때 제거까지 걸리는 시간 (기본값: 90초)
+    #lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
+    #lease-expiration-duration-in-seconds: 10 # Heartbeat 없을 때 제거까지 걸리는 시간 (기본값: 90초)
 
   # Eureka client 관련된 설정을 정의합니다.
   client:
