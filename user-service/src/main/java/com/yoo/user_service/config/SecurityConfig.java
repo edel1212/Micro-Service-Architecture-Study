@@ -20,8 +20,8 @@ public class SecurityConfig {
 
         // 👉 모든 접근 제한
         http.authorizeHttpRequests( access ->{
-            // "/users" 로 시작하는 요청 접근 허용
-            access.requestMatchers("/users/**").permitAll();
+            // "/user-service" 로 시작하는 요청 접근 허용
+            access.requestMatchers("/user-service/**").permitAll();
             // h2-console 접근 허용
             access.requestMatchers("/h2-console/**").permitAll();
 

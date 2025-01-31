@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Log4j2
-@RequestMapping("/")
+// ⭐️API Gate-way에서 호출하려는 Path의 Prefix가 같아야한다.
+@RequestMapping("/user-service")
 @RequiredArgsConstructor
 public class UserController {
 

@@ -31,6 +31,10 @@ spring:
                 baseMessage: Hi~~~~ Logging Filter Setting - using yml
                 preLogger: true
                 postLogger: true
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/**
 
 eureka:
   client:
