@@ -45,9 +45,10 @@ dependencies {
 }
 ```
 
-
-
 #### application.yml
+```properties
+# ✨ Gate-way 와 연결된 Service의  predicates의 Path를 같게 맞춰줘야 Routing이 가능하다
+```
 - 핵심 설정은 `cloud` 부분 설정
 - id : 대상 route id 부여
   - route 대상 service name 과 달라도 **문제가 없음**  
