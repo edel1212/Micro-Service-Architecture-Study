@@ -5,11 +5,14 @@ import com.yoo.user_service.dto.UserDto;
 import com.yoo.user_service.entity.UserEntity;
 import com.yoo.user_service.repository.UserRepository;
 import com.yoo.user_service.vo.RequestUser;
+import com.yoo.user_service.vo.ResponseOrder;
 import com.yoo.user_service.vo.ResponseUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -32,5 +35,21 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = userRepository.save(userEntity);
         // Entity -> Res
         return mapper.convertValue(entity, ResponseUser.class);
+    }
+
+    @Override
+    public UserDto getUserByUserId(String userId) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
+
+        List<ResponseOrder> orders = new ArrayList<>();
+        userDto.setOrders(orders);
+
+        return userDto;
+    }
+
+    @Override
+    public List<UserEntity> getUserAll() {
+        return userRepository.findAll();
     }
 }

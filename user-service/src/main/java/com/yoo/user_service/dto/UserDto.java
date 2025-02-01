@@ -1,8 +1,10 @@
 package com.yoo.user_service.dto;
 
+import com.yoo.user_service.vo.ResponseOrder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class UserDto {
@@ -13,4 +15,6 @@ public class UserDto {
     private LocalDateTime createAt;
 
     private String encryptedPwd;
+
+    private List<ResponseOrder> orders;
 }

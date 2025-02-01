@@ -1,5 +1,7 @@
 package com.yoo.user_service.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yoo.user_service.dto.UserDto;
 import com.yoo.user_service.service.UserService;
 import com.yoo.user_service.vo.Greeting;
 import com.yoo.user_service.vo.RequestUser;
@@ -10,6 +12,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Log4j2
@@ -37,5 +41,20 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<ResponseUser> createUser(@RequestBody RequestUser requestUser){
         return ResponseEntity.status(HttpStatus.CREATED).body( userService.createUser(requestUser) );
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<ResponseUser>> getUsers(){
+        var mapper = new ObjectMapper();
+        List<ResponseUser> result = userService.getUserAll().
+                stream()
+                .map( i-> mapper.convertValue(i, ResponseUser.class) )
+                .toList();
+        return ResponseEntity.ok( result );
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<UserDto> getUser(@PathVariable String userId){
+        return ResponseEntity.ok(userService.getUserByUserId(userId));
     }
 }
