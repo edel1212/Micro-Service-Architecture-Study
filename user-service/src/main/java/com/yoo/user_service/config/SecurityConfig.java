@@ -1,7 +1,9 @@
 package com.yoo.user_service.config;
 
 import com.yoo.user_service.security.AuthenticationFilter;
+import com.yoo.user_service.service.UserService;
 import jakarta.servlet.Filter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,13 +11,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
-
-import java.util.function.Supplier;
 
 @Configuration
+@RequiredArgsConstructor
 @Log4j2
 public class SecurityConfig {
+
+    private final UserService userService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,AuthenticationManager authenticationManager) throws Exception{
@@ -31,6 +33,8 @@ public class SecurityConfig {
             // h2-console 접근 허용
             access.requestMatchers("/h2-console/**").permitAll();
         });
+
+        http.userDetailsService(userService);
 
         http.addFilter(getAuthenticationFilter(authenticationManager));
         return http.build();
