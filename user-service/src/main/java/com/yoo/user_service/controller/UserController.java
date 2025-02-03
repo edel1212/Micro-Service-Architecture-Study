@@ -17,8 +17,6 @@ import java.util.List;
 
 @RestController
 @Log4j2
-// ⭐️API Gate-way에서 호출하려는 Path의 Prefix가 같아야한다.
-@RequestMapping("/user-service")
 @RequiredArgsConstructor
 public class UserController {
 
