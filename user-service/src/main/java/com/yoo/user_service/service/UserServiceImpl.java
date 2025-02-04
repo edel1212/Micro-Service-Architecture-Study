@@ -8,6 +8,7 @@ import com.yoo.user_service.vo.RequestUser;
 import com.yoo.user_service.vo.ResponseOrder;
 import com.yoo.user_service.vo.ResponseUser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
+@Log4j2
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -32,6 +34,7 @@ public class UserServiceImpl implements UserService {
         UserDto userDto = mapper.convertValue(requestUser, UserDto.class);
         userDto.setUserId(UUID.randomUUID().toString());
         userDto.setEncryptedPwd( passwordEncoder.encode(requestUser.getPwd()) );
+
         // DTO -> Entity
         UserEntity userEntity =  mapper.convertValue(userDto, UserEntity.class);
         // Insert
@@ -58,12 +61,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("userDetailS");
         UserEntity userEntity = userRepository.findByUserId(username);
 
-        if (userEntity == null)
+        if (userEntity == null) {
             throw new UsernameNotFoundException("User not found");
+        }
 
         // UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
+
+        log.info("------------------");
+        log.info("pw :: {}", userEntity.getEncryptedPwd());
+        log.info("------------------");
 
         return new User(userEntity.getEmail(), userEntity.getEncryptedPwd(), true, true, true, true, new ArrayList<>() );
     }

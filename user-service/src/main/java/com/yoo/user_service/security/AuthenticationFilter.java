@@ -6,33 +6,40 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
+@RequiredArgsConstructor
 @Log4j2
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
-       try {
-           var mapper = new ObjectMapper();
-           log.info("input Stream ::: {}", request.getInputStream().toString() );
-           RequestLogin requestLogin = mapper.convertValue(request.getInputStream(), RequestLogin.class);
-           UsernamePasswordAuthenticationToken token
-                   = new UsernamePasswordAuthenticationToken(   requestLogin.getEmail()
-                                                               , requestLogin.getPassword()
-                                                               , new ArrayList<>());
-           return getAuthenticationManager().authenticate(token);
-       } catch (Exception e){
-           throw new RuntimeException(e);
-       } // try - catch
+        try {
+            var mapper = new ObjectMapper();
+            RequestLogin requestLogin = mapper.readValue(request.getInputStream(), RequestLogin.class);
+            log.info("getEmail ::: {}", requestLogin.getEmail());
+            log.info("getPassword ::: {}", requestLogin.getPwd());
+
+            UsernamePasswordAuthenticationToken token =
+                    new UsernamePasswordAuthenticationToken(requestLogin.getEmail(), requestLogin.getPwd(), new ArrayList<>());
+
+            return authenticationManager.authenticate(token);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
