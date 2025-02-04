@@ -25,7 +25,6 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager());
         http.csrf(csrf -> csrf.disable());
 
         // frame 접근 허용 -  h2 내 UI 구성을 위함
@@ -38,19 +37,8 @@ public class SecurityConfig {
             access.requestMatchers("/**").permitAll();
             // h2-console 접근 허용
             access.requestMatchers("/h2-console/**").permitAll();
-        })
-                .addFilter(authenticationFilter);
-        http.formLogin(i->i.loginProcessingUrl("/login"));
+        });
 
         return http.build();
-    }
-
-
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(provider);
     }
 }
