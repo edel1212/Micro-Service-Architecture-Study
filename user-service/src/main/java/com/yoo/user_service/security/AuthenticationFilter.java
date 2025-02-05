@@ -1,6 +1,7 @@
 package com.yoo.user_service.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yoo.user_service.service.UserService;
 import com.yoo.user_service.vo.RequestLogin;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,10 +9,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
@@ -22,7 +25,11 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 @Log4j2
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-    private final AuthenticationManager authenticationManager;
+
+    public AuthenticationFilter(AuthenticationManager authenticationManager) {
+        super(authenticationManager);
+    }
+
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -33,10 +40,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             log.info("getEmail ::: {}", requestLogin.getEmail());
             log.info("getPassword ::: {}", requestLogin.getPwd());
 
-            UsernamePasswordAuthenticationToken token =
-                    new UsernamePasswordAuthenticationToken(requestLogin.getEmail(), requestLogin.getPwd(), new ArrayList<>());
 
-            return authenticationManager.authenticate(token);
+            return getAuthenticationManager().authenticate(
+                    new UsernamePasswordAuthenticationToken(requestLogin.getEmail(), requestLogin.getPwd(), new ArrayList<>()));
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

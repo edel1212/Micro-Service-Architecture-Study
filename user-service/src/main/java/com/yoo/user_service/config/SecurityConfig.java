@@ -10,8 +10,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -21,10 +23,21 @@ import java.util.List;
 @RequiredArgsConstructor
 @Log4j2
 public class SecurityConfig {
-    private final UserService userService;
+
     private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
+
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
+
+        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+
+
         http.csrf(csrf -> csrf.disable());
 
         // frame 접근 허용 -  h2 내 UI 구성을 위함
@@ -39,6 +52,12 @@ public class SecurityConfig {
             access.requestMatchers("/h2-console/**").permitAll();
         });
 
+        http.authenticationManager(authenticationManager);
+        http.addFilter(this.getAuthenticationFilter(authenticationManager));
         return http.build();
+    }
+
+    private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager){
+        return new AuthenticationFilter(authenticationManager);
     }
 }

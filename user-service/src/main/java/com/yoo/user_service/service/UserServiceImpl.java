@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +74,9 @@ public class UserServiceImpl implements UserService {
         log.info("------------------");
         log.info("pw :: {}", userEntity.getEncryptedPwd());
         log.info("------------------");
+
+        boolean matches = passwordEncoder.matches("1234", userEntity.getEncryptedPwd());
+        System.out.println("비밀번호 일치 여부: " + matches);
 
         return new User(userEntity.getEmail(), userEntity.getEncryptedPwd(), true, true, true, true, new ArrayList<>() );
     }
