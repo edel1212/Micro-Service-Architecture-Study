@@ -4,11 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yoo.user_service.dto.UserDto;
 import com.yoo.user_service.service.UserService;
 import com.yoo.user_service.vo.RequestLogin;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 @Log4j2
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -53,7 +55,23 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         String userName = ((User)authResult.getPrincipal()).getUsername();
         UserDto userDto = userService.getUserDetailsByEmail(userName);
-        log.info(userDto);
-        log.info("login Succes!!!!!!");
+        String userId = userDto.getUserId();
+        // 만료 시간을 밀리초로 설정하여 Date 객체로 변환
+        long expirationTime = Long.valueOf(env.getProperty("token.expiration-time"));
+        Date expirationDate = new Date(System.currentTimeMillis() + expirationTime);
+        // secretKey
+        String secretKey    = env.getProperty("token.secret");
+
+        String token = Jwts.builder()
+                // 사용자 또는 애플리케이션을 식별하는 값
+                .subject(userId)
+                // 만료 시간
+                .expiration(expirationDate)
+                // 알고리즘 방식
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+
+        response.addHeader("token", token);
+        response.addHeader("userId", userId);
     }
 }
