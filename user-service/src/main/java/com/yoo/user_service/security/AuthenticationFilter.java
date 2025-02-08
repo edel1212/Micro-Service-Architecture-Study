@@ -5,7 +5,8 @@ import com.yoo.user_service.dto.UserDto;
 import com.yoo.user_service.service.UserService;
 import com.yoo.user_service.vo.RequestLogin;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -61,14 +63,17 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         Date expirationDate = new Date(System.currentTimeMillis() + expirationTime);
         // secretKey
         String secretKey    = env.getProperty("token.secret");
+        byte[] keyBytes     = Decoders.BASE64.decode(secretKey);
+        Key key             = Keys.hmacShaKeyFor(keyBytes);
 
+        // token key 생성
         String token = Jwts.builder()
                 // 사용자 또는 애플리케이션을 식별하는 값
                 .subject(userId)
                 // 만료 시간
                 .expiration(expirationDate)
                 // 알고리즘 방식
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(key)
                 .compact();
 
         response.addHeader("token", token);
