@@ -24,18 +24,16 @@ import java.util.List;
 @Log4j2
 public class SecurityConfig {
 
-    private final PasswordEncoder passwordEncoder;
-    private final UserService userService;
-
-
+//    private final PasswordEncoder passwordEncoder;
+//    private final UserService userService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
-
-        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+//        AuthenticationManagerBuilder authenticationManagerBuilder =
+//                http.getSharedObject(AuthenticationManagerBuilder.class);
+//        authenticationManagerBuilder.userDetailsService(userService).passwordEncoder(passwordEncoder);
+//
+//        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 
 
         http.csrf(csrf -> csrf.disable());
@@ -52,12 +50,12 @@ public class SecurityConfig {
             access.requestMatchers("/h2-console/**").permitAll();
         });
 
-        http.authenticationManager(authenticationManager);
-        http.addFilter(this.getAuthenticationFilter(authenticationManager));
+        //http.authenticationManager(authenticationManager);
+//        http.addFilter(this.getAuthenticationFilter(authenticationManager));
         return http.build();
     }
 
-    private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager){
-        return new AuthenticationFilter(authenticationManager);
-    }
+//    private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager){
+//        return new AuthenticationFilter(authenticationManager);
+//    }
 }
