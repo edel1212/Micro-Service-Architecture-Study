@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +22,7 @@ import java.util.List;
 public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final Environment env;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -50,6 +52,6 @@ public class SecurityConfig {
     }
 
     private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager){
-        return new AuthenticationFilter(authenticationManager);
+        return new AuthenticationFilter(authenticationManager, userService, env);
     }
 }
