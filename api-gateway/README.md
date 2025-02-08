@@ -377,7 +377,7 @@ public class FilterConfig {
 @Log4j2
 @Component
 public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Config>{
-법
+
     public LoggingFilter(){
         super(LoggingFilter.Config.class);
     }
@@ -433,8 +433,60 @@ spring:
                 postLogger: true
 ```
 
+## 6 ) 필터 활용 - cookie 및 middle path 제외 
+```properties
+# ✅ Gateway에서 다른 Service를 route를 하기 위해서 필요한 중간 Path를 사용해야 하지만 filter 중 "RewritePath" 를 사용하면 제외가 가능하다. 
+#    - "변경 전" 설정 일부
+#        - id: user-service
+#          uri: lb://USER-SERVICE
+#          predicates:
+#            - Path=/user-service/**
+```
+### gateway - application.yml
+- 흐름
+  - Gateway에 지정된 Path 와 http Method 요청이 들어온 온다.
+    - **predicates 내** Path 확인
+  - RemoveRequestHeader 대상인 Cookie **제거**
+  - RewritePath 를 통해 **지정 중간 Path를 제거**
+    - ex) `/user-service/user-info` -> `/user-info`
+  - routes 내 uri 대상으로 해당 **변경된 URI 전달**
+```yaml
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            # 지정 Path
+            - Path=/user-service/login
+            # POST - login 요청이 들어 욜 경우
+            - Method=POST
+          # Cookie 삭제 및 user-service 제거
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+```
 
-## 6 ) Eureka 연동 - Load Balancing
+### User Application Controller
+- gateway에서 middle path를 제외하고 route 하기에 `@RequestMapping`가 **불필요**
+
+```java
+import org.springframework.web.bind.annotation.RequestMapping;
+
+ 
+// ❌ 불필요 -> @RequestMapping("/user-service")
+@RestController
+public class UserController {
+  @GetMapping("/health-check")
+  public ResponseEntity<String> status() {
+    return ResponseEntity.ok("It's Working in User Service");
+  }
+}
+```
+## 7 ) Eureka 연동 - Load Balancing
 ```yaml
 # ℹ️ 기본적으로 Eureka Discover Server가 기동되어 있어야 함
 #    - Gateway server 및 rote 대상 Server들은 Eureka Client 사용 설정이 되어 있어야 한다.
