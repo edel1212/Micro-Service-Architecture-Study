@@ -12,7 +12,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,9 @@ public class UserServiceImpl implements UserService {
         // Req -> DTO
         UserDto userDto = mapper.convertValue(requestUser, UserDto.class);
         userDto.setUserId(UUID.randomUUID().toString());
-        userDto.setEncryptedPwd( passwordEncoder.encode(requestUser.getPwd()) );
+        String  encodePw = passwordEncoder.encode(requestUser.getPwd());
+        userDto.setEncryptedPwd( encodePw );
+        log.info("bCryptPasswordEncoder :: {}", encodePw);
 
         // DTO -> Entity
         UserEntity userEntity =  mapper.convertValue(userDto, UserEntity.class);
@@ -68,8 +69,6 @@ public class UserServiceImpl implements UserService {
         if (userEntity == null) {
             throw new UsernameNotFoundException("User not found");
         }
-
-        // UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
 
         log.info("------------------");
         log.info("pw :: {}", userEntity.getEncryptedPwd());

@@ -9,15 +9,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,8 +35,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             RequestLogin requestLogin = mapper.readValue(request.getInputStream(), RequestLogin.class);
             log.info("getEmail ::: {}", requestLogin.getEmail());
             log.info("getPassword ::: {}", requestLogin.getPwd());
-
-
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(requestLogin.getEmail(), requestLogin.getPwd(), new ArrayList<>()));
 
@@ -51,6 +45,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-// TODO void Metod 이기에 반환 값 없음     super.successfulAuthentication(request, response, chain, authResult);
+        log.info("login Succes!!!!!!");
     }
 }
