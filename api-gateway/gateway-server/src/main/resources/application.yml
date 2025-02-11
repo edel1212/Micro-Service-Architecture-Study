@@ -78,6 +78,11 @@ spring:
           predicates:
             - Path=/order-service/**
 
+# jwt setting
+token:
+  secret: asd123asdkz9xc8v123klxzc890234kljasd8213sd8
+
+
 eureka:
   client:
     register-with-eureka: true
