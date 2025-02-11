@@ -3,7 +3,6 @@ package com.yoo.gateway_server.filter;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -19,10 +18,14 @@ import reactor.core.publisher.Mono;
 import javax.crypto.SecretKey;
 
 @Component
-@RequiredArgsConstructor
 @Log4j2
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
     private final Environment env;
+
+    public AuthorizationHeaderFilter(Environment env){
+        super(AuthorizationHeaderFilter.Config.class);
+        this.env = env;
+    }
 
     @Override
     public GatewayFilter apply(Config config) {
@@ -64,6 +67,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     private Mono<Void> onError(ServerWebExchange exchange, String onError, HttpStatus httpStatus) {
         ServerHttpResponse httpResponse = exchange.getResponse();
         httpResponse.setStatusCode(httpStatus);
+        log.error(onError);
         return httpResponse.setComplete();
     }
 
