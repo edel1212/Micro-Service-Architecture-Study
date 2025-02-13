@@ -49,7 +49,9 @@ public class ConfigServiceApplication {
 }
 ```
 
-### 3 - 3 ) application.yml - git local 방식
+### 3 - 3 ) application.yml
+- spring -> cloud -> server 하위에 설정을 작성하여 진행한다.
+####  3 - 3 - A )  git local 방식
 - 해당 설정된 git의 파일 정보는 [링크](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/git-local-repo)에서 확인 가능하다.
   - 해당 위치에 중앙에서 관리할 설정 yml파일이 존재함
 ```yaml
@@ -66,15 +68,10 @@ spring:
           uri: file:///Users/yoo/Desktop/Project/config-repo
 ```
 
-### 3 - 4 ) application.yml - git remote 방식
+####  3 - 3 - B ) git remote 방식
 - 기본 틀은 크게 다르지 않지만 https 프로토콜을 이용해 git clone의 주소를 넣어주면 된다.
 ```yaml
-server:
-  port: 8888 # Config Server Default Port Number
-
 spring:
-  application:
-    name: config-service
   cloud:
     config:
       server:
