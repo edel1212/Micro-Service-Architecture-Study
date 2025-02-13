@@ -65,3 +65,19 @@ spring:
         git:
           uri: file:///Users/yoo/Desktop/Project/config-repo
 ```
+
+### 3 - 4 ) application.yml - git remote 방식
+- 기본 틀은 크게 다르지 않지만 https 프로토콜을 이용해 git clone의 주소를 넣어주면 된다.
+```yaml
+server:
+  port: 8888 # Config Server Default Port Number
+
+spring:
+  application:
+    name: config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/edel1212/config-repo.git
+```
