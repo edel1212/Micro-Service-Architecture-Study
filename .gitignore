@@ -1,2 +1,5 @@
 .idea/
 .DS_Store
+
+config-service/.gradle
+config-service/build
