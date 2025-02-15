@@ -4,11 +4,21 @@ server:
 spring:
   application:
     name: user-service
+
+  # Config Server Setting
+  config:
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    config:
+      name: ecommerce  # `ecommerce.yml`을 읽도록 설정
+
+  # DB Setting
   datasource:
     url: jdbc:h2:mem:testdb  # H2 데이터베이스 설정
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  # h2 접근 설절
   h2:
     console:
       # H2 콘솔 활성화 여부 (기본값: false)
@@ -23,6 +33,7 @@ spring:
       ddl-auto: create  # 애플리케이션 실행 시 DB 초기화 방식
     show-sql: true  # SQL 실행문 로깅
 
+# Eureka 설정
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
@@ -40,7 +51,7 @@ greeting:
   message: This is Micro User Service!!
 
 
-# jwt setting
-token:
-  expiration-time: 86400000
-  secret: asd123asdkz9xc8v123klxzc890234kljasd8213sd8
+# jwt setting - disabled : used cloud config server
+#token:
+#  expiration-time: 86400000
+#  secret: asd123asdkz9xc8v123klxzc890234kljasd8213sd8
