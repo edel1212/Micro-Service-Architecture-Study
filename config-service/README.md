@@ -70,6 +70,7 @@ spring:
 
 ####  3 - 3 - B ) git remote 방식
 - 기본 틀은 크게 다르지 않지만 https 프로토콜을 이용해 git clone의 주소를 넣어주면 된다.
+- private repository일 경우 uri 하단에 <username> 과 <password> 추가 필요
 ```yaml
 spring:
   cloud:
@@ -77,4 +78,52 @@ spring:
       server:
         git:
           uri: https://github.com/edel1212/config-repo.git
+          #username: foo
+          #password: foo
+```
+
+##  4 ) Config Client 적용 방법
+```properties
+# ✅ user-service를 기준으로 작성 테스트 진행
+```
+
+### 4 - 1 ) build.gradle
+```groovy
+dependencies {
+	// Config Client
+	implementation 'org.springframework.cloud:spring-cloud-starter'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+}
+```
+
+### 4 - 2 ) application.yml
+- config.import 설정
+  - `optional:configserver` 부분에서 configserver는 **prefix로 고정 값**이다.
+    - Config Server에서 설정을 가져오도록 지정한다는 의미
+  - optional 부분 사용 이유
+    -  optional:이 없으면, Config Server가 없을 때 **애플리케이션이 실행되지 않음**
+    -   ✅ optional:이 있으면, Config Server가 없더라도 애플리케이션이 **정상 실행되며 기본 설정을 사용**
+- cloud.config.name 설정
+  - config server에서 **읽어올 yml 대상 지정**
+- ConfigServer 와 Client Server 중복 설정 Key 시 우선 순위
+  - **ConfigServer가 우선으로 적용**
+```yaml
+spring:
+  application:
+    name: user-service
+
+  # Config Server Setting
+  config:
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    config:
+      name: ecommerce  # `ecommerce.yml`을 읽도록 설정
+```
+
+### 4 - 3 ) Result 
+- ✅ 주의사항
+  - Config Server에서 **설정을 변경**한다 해도 Client에서 **바로 해당 변경 값 적용되지 않음 서버 재기동 필요**
+- 서버 기동 시 정상적으로 가져오는 것을 확인 가능함
+```text
+>> Adding property source: Config resource 'file [/Users/yoo/Desktop/Project/config-repo/ecommerce.yml]' via location 'file:/Users/yoo/Desktop/Project/config-repo/'
 ```
