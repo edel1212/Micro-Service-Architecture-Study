@@ -4,37 +4,17 @@ server:
 spring:
   application:
     name: gateway-service
+
+  # Config Server Setting
+  config:
+    import: optional:configserver:http://localhost:8888
+
   cloud:
+    # Config Server Setting - target yml 파일 지정
+    config:
+      name: ecommerce  # `ecommerce.yml`을 읽도록 설정
     gateway:
-#      default-filters:
-#        - name: GlobalFilter
-#          args:
-#            baseMessage: Spring Cloud Global Filter Setting - only used to yml
-#            preLogger: true
-#            postLogger: true
       routes:
-        - id: first-service
-          uri: lb://YOO-FIRST-SERVICE
-          predicates:
-            - Path=/first-service/**
-          filters:
-            - CustomFilter
-        - id: second-service
-          uri: lb://YOO-SECOND-SERVICE
-          predicates:
-            - Path=/second-service/**
-          filters:
-            # args를 적용하기 위햐서는 "name:"을 사용해줘야 함
-            - name: CustomFilter
-            - name: LoggingFilter
-              args:
-                baseMessage: Hi~~~~ Logging Filter Setting - using yml
-                preLogger: true
-                postLogger: true
-#        - id: user-service
-#          uri: lb://USER-SERVICE
-#          predicates:
-#            - Path=/user-service/**
         - id: user-service
           uri: lb://USER-SERVICE
           # POST - login 요청이 들어 욜 경우
@@ -79,10 +59,13 @@ spring:
           predicates:
             - Path=/order-service/**
 
-# jwt setting
-token:
-  secret: asd123asdkz9xc8v123klxzc890234kljasd8213sd8
-
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        # /actuator/** 로 사용할 기능 설정
+        include: refresh, health, beans, httpexchanges
 
 eureka:
   client:
