@@ -130,14 +130,14 @@ spring:
 
 ## 5 ) Config Client - Changed configuration values
 - "4 - 3"에서 언급한 Config Server에서 값이 변경 한다 해도 Client를 재기동하는 것은 말이 안되는 방법이기에 대안을 사용 할 수 있다.
-- 해결 방법 : "Actuator refresh", "Spring cloud bus"
+  - 해결 방법 : "Actuator refresh", "Spring cloud bus"
 
 ### 5 - 1 ) Actuator refresh
 - Spring Boot Actuator를 사용 하는 것이다.
   - Appliationm 상태, 모니터링 기능 제공
   - Metric 수집을 위한 Http End point 제공
 
-### 5 - 1 - A ) build.gradle
+#### 5 - 1 - A ) build.gradle
 ```groovy
 dependencies {
 	// Actuator
@@ -145,7 +145,7 @@ dependencies {
 }
 ```
 
-### 5 - 1 - B ) application.yml
+#### 5 - 1 - B ) application.yml
 - 실제 갱신하는 end point는 **refresh**이다. 
 ```yaml
 # Actuator 설정
@@ -157,7 +157,7 @@ management:
         include: refresh, health, beans
 ```
 
-### 5 - 1 - C ) 갱신 요청
+#### 5 - 1 - C ) 갱신 요청
 - 반드시 요청은 **POST방식으로 요청**해야 한다.
   - 필요 파라미터❌
 - 응답 값은 변경된 값이  JSON형태로 응답 온다.
@@ -169,4 +169,57 @@ curl --location --request POST '127.0.0.1:60312/actuator/refresh'
     "config.client.version",
     "token.expiration-time"
 ]
+```
+
+### 5 - 2 ) GateWay Service 적용 - Config client, Actuator refresh
+```properties
+✅ 이전에 진행했던 config-client 적용 및 Actuator 적용은 같지만 Actuator 중에서 httpexchanges가 추가되었다는 점만 다르다.
+```
+#### 5 - 2 - A ) Build.gradle
+```groovy
+dependencies {
+	// Config Client
+	implementation 'org.springframework.cloud:spring-cloud-starter'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	// Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+}
+```
+
+#### 5 - 2 - B ) application.yml
+- httpexchanges란?
+  - 애플리케이션에서 주고받은 HTTP 요청(Request)과 응답(Response)을 **기록하는 기능**
+  - Spring Boot 2.x에서는 httptrace를 사용했지만, 3.x부터는 **httpexchanges로 변경됨**
+```yaml
+spring:
+  application:
+    name: gateway-service
+
+  # ✨ Config Server Setting
+  config:
+    import: optional:configserver:http://localhost:8888
+
+  cloud:
+    # ✨ Config Server Setting - target yml 파일 지정
+    config:
+      name: ecommerce  # `ecommerce.yml`을 읽도록 설정
+    # gateway route setrting  
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user-service/login
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/user-service/(?<segment>.*), /$\{segment}
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        # /actuator/** 로 사용할 기능 설정
+        include: refresh, health, beans, httpexchanges
 ```
