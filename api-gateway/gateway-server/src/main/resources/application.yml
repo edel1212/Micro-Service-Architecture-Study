@@ -8,7 +8,8 @@ spring:
   # Config Server Setting
   config:
     import: optional:configserver:http://localhost:8888
-
+  profiles:
+    active: dev
   cloud:
     # Config Server Setting - target yml 파일 지정
     config:
