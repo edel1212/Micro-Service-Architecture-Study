@@ -8,6 +8,18 @@ spring:
     config:
       server:
         git:
-          uri: file:///Users/yoo/Desktop/Project/config-repo
-         # uri: https://github.com/edel1212/config-repo.git
+#          uri: file:///Users/yoo/Desktop/Project/config-repo [ local repository ]
+          uri: https://github.com/edel1212/config-repo.git
+
+#################
+## native 설정 ###
+#################
+#spring:
+#  profiles:
+#    active: native
+#  cloud:
+#    config:
+#      server:
+#        native:
+#          search-locations: file:///Users/yoo/Desktop/Project/Micro-Service-Architecture-Study/native-file-repo
 
