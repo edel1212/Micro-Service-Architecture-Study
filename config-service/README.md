@@ -19,7 +19,7 @@
   - Ex) user-service 서버에서 config server에 user-service 설정 파일을 요청 시 해당 `user-service.yml` 설정 값 반환
     - user-service 서버에서 profile을 prod로 요청 시 `user-service-prod.ygml` 설정 값 반환
 
-## 3 ) 설정 방법
+## 3 ) Config Server 설정 방법
 ```properties
 # ✅ 설정 파일을 읽어오는 방법은 3가지 예제를 사용 local-repository, remote-repository, file-read 
 #   - Config Server의 Default Port : 8888 이다.
@@ -122,8 +122,51 @@ spring:
 
 ### 4 - 3 ) Result 
 - ✅ 주의사항
-  - Config Server에서 **설정을 변경**한다 해도 Client에서 **바로 해당 변경 값 적용되지 않음 서버 재기동 필요**
-- 서버 기동 시 정상적으로 가져오는 것을 확인 가능함
+  - Config Server에서 **설정을 변경**한다 해도 Client에서 **바로 해당 변경 값 적용되지 않음 서버 재기동 필요** (불편함 옳은 방법이 아님)
+- 서버 기동 시 정상적으로 가져오는 것을 확인 가능함법
 ```text
 >> Adding property source: Config resource 'file [/Users/yoo/Desktop/Project/config-repo/ecommerce.yml]' via location 'file:/Users/yoo/Desktop/Project/config-repo/'
+```
+
+## 5 ) Config Client - Changed configuration values
+- "4 - 3"에서 언급한 Config Server에서 값이 변경 한다 해도 Client를 재기동하는 것은 말이 안되는 방법이기에 대안을 사용 할 수 있다.
+- 해결 방법 : "Actuator refresh", "Spring cloud bus"
+
+### 5 - 1 ) Actuator refresh
+- Spring Boot Actuator를 사용 하는 것이다.
+  - Appliationm 상태, 모니터링 기능 제공
+  - Metric 수집을 위한 Http End point 제공
+
+### 5 - 1 - A ) build.gradle
+```groovy
+dependencies {
+	// Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+}
+```
+
+### 5 - 1 - B ) application.yml
+- 실제 갱신하는 end point는 **refresh**이다. 
+```yaml
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        # /actuator/** 로 사용할 기능 설정
+        include: refresh, health, beans
+```
+
+### 5 - 1 - C ) 갱신 요청
+- 반드시 요청은 **POST방식으로 요청**해야 한다.
+  - 필요 파라미터❌
+- 응답 값은 변경된 값이  JSON형태로 응답 온다.
+```text
+// Request
+curl --location --request POST '127.0.0.1:60312/actuator/refresh'
+// Response
+[
+    "config.client.version",
+    "token.expiration-time"
+]
 ```
