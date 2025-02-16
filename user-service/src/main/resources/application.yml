@@ -51,6 +51,14 @@ greeting:
   message: This is Micro User Service!!
 
 
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        # /actuator/** 로 사용할 기능 설정
+        include: refresh, health, beans
+
 # jwt setting - disabled : used cloud config server
 #token:
 #  expiration-time: 86400000
