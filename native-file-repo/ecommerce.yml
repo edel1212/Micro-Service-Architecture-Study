@@ -1,0 +1,7 @@
+# jwt setting
+token:
+  expiration-time: 1111111111111111111111
+  secret: asd123asdkz9xc8v123klxzc890234kljasd8213sd8-defailt
+
+gateway:
+  127.0.0.1
