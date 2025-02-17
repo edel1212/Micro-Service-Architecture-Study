@@ -18,7 +18,26 @@
   - 브로커, 소비자 중심
 
 ## 2 ) 흐름
-![img.png](img.png)
+
+![img_2.png](img_2.png)
+
 - 1 . 개발자가 지정한 HTTP Protocol을 통해 **아무 MicroService 또는 ConfigService에 요청**
 - 2 . Spring Cloud Bus가 변경 요청을 파악하여 ConfigServive와 **연결된 모든 서비스를 refresh** 시킴
   - 상태 및 구성에 대한 변경 사항을 **연결된 노드에게 Broadcast 전달**
+
+## 3 ) RabbitMQ 
+- Docker-Compose를 사용
+```yaml
+services:
+  rabbitmq:
+    image: rabbitmq:3.12-management  # 관리 UI 포함된 버전
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # AMQP 프로토콜 포트
+      - "15672:15672"  # 웹 UI 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - ./data:/var/lib/rabbitmq  # 현재 디렉토리의 `data` 폴더를 마운트
+```
