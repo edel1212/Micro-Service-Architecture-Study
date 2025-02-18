@@ -22,9 +22,20 @@ ext {
 }
 
 dependencies {
+	// Config Server
 	implementation 'org.springframework.cloud:spring-cloud-config-server'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Spring Cloud Bus - AMQP(RabbitMQ)
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bus-amqp', version: '4.2.0'
+
+	// Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// Config Client
+	implementation 'org.springframework.cloud:spring-cloud-starter'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 }
 
 dependencyManagement {

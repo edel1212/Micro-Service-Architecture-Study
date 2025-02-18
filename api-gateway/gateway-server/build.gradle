@@ -44,6 +44,9 @@ dependencies {
 	// Actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+	// Spring Cloud Bus - AMQP(RabbitMQ)
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bus-amqp', version: '4.2.0'
+
 }
 
 dependencyManagement {

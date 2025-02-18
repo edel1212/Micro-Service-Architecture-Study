@@ -4,12 +4,25 @@ server:
 spring:
   application:
     name: config-service
+  # RabbitMQ Setting
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username : admin
+    password: admin
   cloud:
     config:
       server:
         git:
 #          uri: file:///Users/yoo/Desktop/Project/config-repo [ local repository ]
           uri: https://github.com/edel1212/config-repo.git
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # /actuator/** 로 사용할 기능 설정
+        include: health, busrefresh
 
 #################
 ## native 설정 ###

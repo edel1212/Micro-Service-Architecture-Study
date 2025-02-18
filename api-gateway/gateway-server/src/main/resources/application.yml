@@ -5,6 +5,13 @@ spring:
   application:
     name: gateway-service
 
+  # RabbitMQ Setting
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: admin
+    password: admin
+
   # Config Server Setting
   config:
     import: optional:configserver:http://localhost:8888
@@ -66,7 +73,7 @@ management:
     web:
       exposure:
         # /actuator/** 로 사용할 기능 설정
-        include: refresh, health, beans, httpexchanges
+        include: refresh, health, beans, httpexchanges, busrefresh
 
 eureka:
   client:
