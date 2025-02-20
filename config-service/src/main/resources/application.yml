@@ -17,12 +17,16 @@ spring:
 #          uri: file:///Users/yoo/Desktop/Project/config-repo [ local repository ]
           uri: https://github.com/edel1212/config-repo.git
 
+# Actuator 설정
 management:
   endpoints:
     web:
       exposure:
         # /actuator/** 로 사용할 기능 설정
         include: health, busrefresh
+
+encrypt:
+  key: abcdefghijklmnopqrstuvwxyz0123456789
 
 #################
 ## native 설정 ###
