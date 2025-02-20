@@ -20,14 +20,8 @@ spring:
     import: optional:configserver:http://localhost:8888
   cloud:
     config:
-      name: ecommerce  # `ecommerce.yml`을 읽도록 설정
+      name: user-service  # `user-service.yml`을 읽도록 설정
 
-  # DB Setting
-  datasource:
-    url: jdbc:h2:mem:testdb  # H2 데이터베이스 설정
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
   # h2 접근 설절
   h2:
     console:

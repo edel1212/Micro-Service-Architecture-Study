@@ -32,6 +32,7 @@ public class UserController {
         map.put("[ application.yml ] port(local.server.port)", env.getProperty("local.server.port"));
         map.put("[ config server ] token secret-key(env)", env.getProperty("token.secret"));
         map.put("[ config server ] token expiration time(env)", env.getProperty("token.expiration-time"));
+        map.put("[ config server ] datasource", env.getProperty("spring.application.datasource.password"));
         return ResponseEntity.ok(map);
     }
 
