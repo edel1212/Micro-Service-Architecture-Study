@@ -312,4 +312,49 @@ encrypt:
   ```yaml
   password: "{cipher}7dbf10c1f7937423428dbdf2fc8d1b54fc45d28a48bfa065b8ff0c011b32908e"
   ```
-  
+
+## 9 ) 비대칭 암호화
+```yaml
+# ✅ Java KeyStore(JKS)를 관리하기 위한 Java 제공 유틸리티
+#     - Java 애플리케이션에서 보안 기능(SSL/TLS, 인증서, 키 쌍 등)을 사용할 때 필요
+```
+
+### 9 - 1 ) Key 생성
+```text
+keytool -genkeypair -alias 별칭등록 -keyalg RSA -keysize 2048 -validity 365 \
+-keystore 파일명등록.jks -storepass "지정 패스워드" -keypass "지정 패스워드" \
+-dname "CN=yoo.com, OU=API Dev, O=MyOrg, L=Seoul, C=KR"e
+```
+
+#### 9 - 1 - A ) keytool 명령어 옵션 설명
+
+| 옵션 | 설명 |
+|------|------|
+| `keytool` | Java KeyStore(JKS)에서 키를 관리하는 명령어 |
+| `-genkeypair` | 키 쌍(공개 키 + 개인 키)을 생성 |
+| `-alias apiEncryptionKey` | 키의 별칭(Alias) 설정. 여러 키를 관리할 때 개별 식별자로 사용 |
+| `-keyalg RSA` | 키 알고리즘을 RSA로 지정 (기본값은 DSA이므로 명확히 지정해야 함) |
+| `-keysize 2048` | 키 크기를 2048비트로 설정 (보안성을 위해 최소 2048 이상 권장) |
+| `-validity 365` | 키의 유효 기간을 365일(1년)로 설정 |
+| `-keystore apiEncryptionKey.jks` | 키를 저장할 키 저장소 파일(JKS) 이름 |
+| `-storepass "123456"` | 키 저장소의 비밀번호 (6자 이상이어야 하며, 보안성을 위해 강력한 비밀번호 사용 권장) |
+| `-keypass "123456"` | 키의 비밀번호 (storepass와 동일하게 설정 가능, 6자 이상 필요) |
+| `-dname "CN=yoo.com, OU=API Dev, O=MyOrg, L=Seoul, C=KR"` | 인증서 주체 정보 (Distinguished Name) |
+
+#### 9 - 1 - B ) `-dname` 옵션 세부 정보
+
+| 속성 | 설명 |
+|------|------|
+| `CN=yoo.com` | 공통 이름 (Common Name, 예: 도메인 또는 사용자) |
+| `OU=API Dev` | 조직 단위 (Organizational Unit, 예: 부서) |
+| `O=MyOrg` | 조직명 (Organization) |
+| `L=Seoul` | 도시 (Locality) |
+| `C=KR` | 국가 코드 (Country, 한국은 `KR`) |
+
+### 9 - 2 ) 생성된 키 정보 확인
+- 명령어 입력 후 생성에 사용한 storepass 입력 필요
+`keytool -list -keystore apiEncryptionKey.jks -v`
+
+### 9 - 3 ) 인증서 파일 추출
+- `-rfc` 옵션을 사용할 경우 공개키가 Base64로 인코딩된 PEM 형식으로 출력
+`keytool -export -alias apiEncryptionKey -keystore apiEncryptionKey.jks -rfc -file publicKey.cer`
