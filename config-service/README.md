@@ -277,3 +277,39 @@ spring:
     gateway:
       routes: # code ...
 ```
+
+## 8 ) 대칭 암호화
+- config server를 사용 시 내장 되어 있는 대칭 암호화를 사용 할 수 있다.
+
+### 8 - 1 ) build.gradle
+```groovy
+dependencies {
+  // Config Server
+  implementation 'org.springframework.cloud:spring-cloud-config-server'
+}
+```
+### 8 - 2 ) application.yml
+- 대칭 암호화에 사용될 암호키를 등록
+```yaml
+encrypt:
+  key: abcdefghijklmnopqrstuvwxyz0123456789
+```
+
+### 8 - 3 ) 사용 방법
+- 암호화 요청
+  - Http Method : POST
+  - Path : encrypt
+  - Request Body :  "암호화를 원하는 내용"
+    - ✨중요 포인트는 **'Content-Type: text/plain'로 요청**을 보내는 것이다.
+  - Response : 7dbf10c1f7937423428dbdf2fc8d1b54fc45d28a48bfa065b8ff0c011b32908e
+- 복암호화 요청
+  - Http Method : POST
+  - Path : decrypt
+  - Request Body : "암호화된 값"
+  - Response : 복호화된 값
+- config server기 읽는 설정 파일
+  - `{cipher}` prefix를 붙여 사용하면 해당 값을 **Config Server를 통해 읽을 때 복호화된 값으로 사용**할 수 있다.
+  ```yaml
+  password: "{cipher}7dbf10c1f7937423428dbdf2fc8d1b54fc45d28a48bfa065b8ff0c011b32908e"
+  ```
+  
