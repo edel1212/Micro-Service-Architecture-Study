@@ -358,3 +358,19 @@ keytool -genkeypair -alias 별칭등록 -keyalg RSA -keysize 2048 -validity 365 
 ### 9 - 3 ) 인증서 파일 추출
 - `-rfc` 옵션을 사용할 경우 공개키가 Base64로 인코딩된 PEM 형식으로 출력
 `keytool -export -alias apiEncryptionKey -keystore apiEncryptionKey.jks -rfc -file publicKey.cer`
+
+### 9 - 4 ) 공개 Key 생성
+- 공개키 인증서를 publicKey.jks KeyStore에 저장
+`keytool -import -alias apiEncryptionKey -file publicKey.cer -keystore publicKey.jks`
+
+### 9 - 5 ) Config Server 적용 - application.yml
+- location에 생성했던 암호키 위치 지정
+- password 사용한 비밀번호 입력
+- alias에는 사용했던 별칭 입력
+```yaml
+encrypt:
+  key-store:
+    location: file://${user.home}/Desktop/Project/keystroe/apiEncryptionKey.jks
+    password: 123456
+    alias: apiEncryptionKey
+```
