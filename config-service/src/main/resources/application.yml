@@ -25,8 +25,17 @@ management:
         # /actuator/** 로 사용할 기능 설정
         include: health, busrefresh
 
+## ✨ 대칭키 방식
+#encrypt:
+#  key: abcdefghijklmnopqrstuvwxyz0123456789
+
+## ✨ 비대칭키 방식
 encrypt:
-  key: abcdefghijklmnopqrstuvwxyz0123456789
+  key-store:
+    location: file://${user.home}/Desktop/Project/keystroe/apiEncryptionKey.jks
+    password: 123456
+    alias: apiEncryptionKey
+
 
 #################
 ## native 설정 ###
