@@ -9,11 +9,16 @@ import com.yoo.user_service.vo.ResponseOrder;
 import com.yoo.user_service.vo.ResponseUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +32,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ObjectMapper mapper;
     private final PasswordEncoder passwordEncoder;
+
+    private final RestTemplate restTemplate;
+    private final Environment env;
 
     @Override
     public ResponseUser createUser(RequestUser requestUser) {
@@ -49,10 +57,15 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserByUserId(String userId) {
         UserEntity userEntity = userRepository.findByUserId(userId);
         UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
-
-        List<ResponseOrder> orders = new ArrayList<>();
+        // config server에서 env 정보를 읽어옴
+        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
+        ResponseEntity<List<ResponseOrder>> orderListResponse =
+                restTemplate.exchange(orderUrl, HttpMethod.GET, null,
+                        // List<T>, Map<K, V> 같은 제네릭 타입을 반환할 때 형태를 유지하기 위해 사용함
+                        new ParameterizedTypeReference<>() {
+                        });
+        List<ResponseOrder> orders = orderListResponse.getBody();
         userDto.setOrders(orders);
-
         return userDto;
     }
 
