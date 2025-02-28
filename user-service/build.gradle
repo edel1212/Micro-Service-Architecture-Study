@@ -58,6 +58,9 @@ dependencies {
 	// Spring Cloud Bus - AMQP(RabbitMQ)
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bus-amqp', version: '4.2.0'
 
+	// Open Feign
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
 }
 
 tasks.withType(JavaCompile) {
