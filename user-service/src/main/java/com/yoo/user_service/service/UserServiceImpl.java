@@ -3,6 +3,7 @@ package com.yoo.user_service.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yoo.user_service.dto.UserDto;
 import com.yoo.user_service.entity.UserEntity;
+import com.yoo.user_service.feignClient.OrderServiceClient;
 import com.yoo.user_service.repository.UserRepository;
 import com.yoo.user_service.vo.RequestUser;
 import com.yoo.user_service.vo.ResponseOrder;
@@ -35,6 +36,7 @@ public class UserServiceImpl implements UserService {
 
     private final RestTemplate restTemplate;
     private final Environment env;
+    private final OrderServiceClient orderServiceClient;
 
     @Override
     public ResponseUser createUser(RequestUser requestUser) {
@@ -57,14 +59,8 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserByUserId(String userId) {
         UserEntity userEntity = userRepository.findByUserId(userId);
         UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
-        // config server에서 env 정보를 읽어옴
-        String orderUrl = String.format(env.getProperty("order_service.url"), userId);
-        ResponseEntity<List<ResponseOrder>> orderListResponse =
-                restTemplate.exchange(orderUrl, HttpMethod.GET, null,
-                        // List<T>, Map<K, V> 같은 제네릭 타입을 반환할 때 형태를 유지하기 위해 사용함
-                        new ParameterizedTypeReference<>() {
-                        });
-        List<ResponseOrder> orders = orderListResponse.getBody();
+        // feign 사용해서 값을 받아옴
+        List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
         userDto.setOrders(orders);
         return userDto;
     }
