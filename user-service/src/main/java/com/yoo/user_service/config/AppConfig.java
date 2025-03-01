@@ -1,5 +1,6 @@
 package com.yoo.user_service.config;
 
+import feign.Logger;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -22,5 +23,10 @@ public class AppConfig {
                 .readTimeout(Duration.ofMillis(TIMEOUT))
                 .build();
         return restTemplate;
+    }
+
+    @Bean
+    public Logger.Level logLevel(){
+        return Logger.Level.FULL;
     }
 }
