@@ -5,6 +5,7 @@ import com.yoo.user_service.vo.ResponseOrder;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
@@ -13,6 +14,9 @@ public interface OrderServiceClient {
 
     @GetMapping("/order-service/{userId}/orders")
     List<ResponseOrder> getOrders(@PathVariable String userId);
+
+    @GetMapping("/order-service/{userId}/orders")
+    List<ResponseOrder> getOrdersWidthHeader(@PathVariable String userId, @RequestHeader("foo") String foo);
 
     // 404 Error
     @GetMapping("/order-service/{userId}/orders-404")
