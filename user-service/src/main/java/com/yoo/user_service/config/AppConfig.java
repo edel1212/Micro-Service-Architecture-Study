@@ -25,6 +25,9 @@ public class AppConfig {
         return restTemplate;
     }
 
+    /**
+     * Feign Log Setting
+     * */
     @Bean
     public Logger.Level logLevel(){
         return Logger.Level.FULL;

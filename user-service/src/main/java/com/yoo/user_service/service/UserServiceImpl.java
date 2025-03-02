@@ -10,10 +10,7 @@ import com.yoo.user_service.vo.ResponseOrder;
 import com.yoo.user_service.vo.ResponseUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,6 +59,7 @@ public class UserServiceImpl implements UserService {
         // feign 사용해서 값을 받아옴
         List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
         userDto.setOrders(orders);
+        //List<FailResponseOrder> orders404 = orderServiceClient.getOrdersNotMatchResponse(userId);
         return userDto;
     }
 

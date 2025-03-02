@@ -54,7 +54,6 @@ eureka:
 greeting:
   message: This is Micro User Service!!
 
-
 # Actuator 설정
 management:
   endpoints:
@@ -63,7 +62,6 @@ management:
         # /actuator/** 로 사용할 기능 설정
         include: refresh, health, beans, busrefresh
 
-# jwt setting - disabled : used cloud config server
-#token:
-#  expiration-time: 86400000
-#  secret: asd123asdkz9xc8v123klxzc890234kljasd8213sd8
+logging:
+  level:
+    com.yoo.user_service.feignClient: DEBUG
