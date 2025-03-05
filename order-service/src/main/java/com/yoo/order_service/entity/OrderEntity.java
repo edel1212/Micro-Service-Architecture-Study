@@ -1,20 +1,22 @@
 package com.yoo.order_service.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 
 @Data
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Table(name="orders")
 public class OrderEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //    @Column(nullable = false, length = 120, unique = true)
     @Column(nullable = false, length = 120)
     private String productId;
     @Column(nullable = false)
