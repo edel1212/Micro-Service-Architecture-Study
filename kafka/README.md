@@ -43,6 +43,9 @@ kafka-console-producer.sh --bootstrap-server [ Kafka Broker 도메인 ] --topic 
   - **카프카 커넥트에서 제공하는 REST API를 통해** 빠르고 간단하게 커넥트의 설정을 조정하며 상황에 맞게 **유연하게 대응 가능**
 
 ### 2 - 1 ) Kafka Connect Docker
+- Volume 설정 시 필요로 하는 자료를 미리 준비해야한다.
+  - Mariadb Client ( gradle or maven에서 받은 jar를 복사 후 사용 )
+  - confluentinc Jdbc lib ( 공식 홈페이지에서 다운로드 후 lib 위치 jar 사용 )
 ```yaml
 services:
   zookeeper:
