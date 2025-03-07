@@ -99,3 +99,27 @@ networks:
   ecommerce-network:
     driver: bridge
 ```
+
+### 2 - 1 ) Kafka Source Connect 
+
+#### 2 - 1 - A ) Source Connect 등록 
+- Http Method : POST
+- Header : Content-Type - application/json
+- Body
+```javascript
+{
+    "name":"order-sink-connect", // 지정 이름
+    "config":{
+        "connector.class":"io.confluent.connect.jdbc.JdbcSinkConnector",
+        "connection.url":"jdbc:mariadb://mariadb:3306/mydb",
+        "connection.user":"root",
+        "connection.password":"123",
+        "mode": "incrementing",
+        "incrementing.column.name" : "id",
+        "table.whitelist":"users",
+        "topics": "my-topic",
+        "topic.prefix" : "my_topic_",
+        "tasks.max" : "1"
+    }
+}
+```
