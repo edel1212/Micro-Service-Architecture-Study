@@ -108,6 +108,7 @@ networks:
 #### 2 - 1 - A ) Source Connect 등록 
 - Http Method : POST
 - Header : Content-Type - application/json
+- Uri : `localhost:8083/connectors`
 - Body
 ```javascript
 {
@@ -126,3 +127,11 @@ networks:
     }
 }
 ```
+
+#### 2 - 1 - B ) Source Connect 목록 
+- Http Method : GET
+- Uri : `localhost:8083/connectors/list`
+
+#### 2 - 1 - C ) 지정 Source Connect 상태
+- Http Method : GET
+- Uri : `localhost:8083/connectors/{{지정 sourse name}}/status`
