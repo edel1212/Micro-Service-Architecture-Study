@@ -107,9 +107,11 @@ networks:
 
 ```
 
-### 2 - 1 ) Kafka Source Connect 
-
-#### 2 - 1 - A ) Source Connect 등록 
+### 2 - 2 ) Kafka Source Connect
+- 외부 데이터베이스나 시스템에서 데이터를 읽어 Kafka 토픽에 실시간으로 전송하는 역할을 하는 Kafka Connect의 구성 요소
+  - 데이터베이스, 파일 시스템 등 다양한 소스에서 Kafka로 데이터를 쉽게 가져올 수 있음
+  
+#### 2 - 2 - A ) Source Connect 등록 
 ```yaml
 # ☠️ 삽질 : config.connector.class 설정 시 "JdbcSourceConnector"로 해줘야한다.. 
 #         - "jdbc.JdbcSinkConnector" 로 설정하여 삽질함 사용처가 다름 ... ( 에러가 없어 더 찾기 오래 걸림 )
@@ -139,10 +141,98 @@ networks:
 }
 ```
 
-#### 2 - 1 - B ) Source Connect 목록 
+#### 2 - 2 - B ) Connect 목록 확인 
 - Http Method : GET
 - Uri : `localhost:8083/connectors/list`
 
-#### 2 - 1 - C ) 지정 Source Connect 상태
+#### 2 - 2 - C ) 지정 Connect 상태 확인
 - Http Method : GET
 - Uri : `localhost:8083/connectors/{{지정 sourse name}}/status`
+- 
+#### 2 - 2 - D ) Source Connect 테스트
+- 1 . kafka consumer.sh에서 설정한 topic 내용 보기
+  - `kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic {{지정 토픽}} --from--beginning`
+- 2 . connector로 지정한 Table에 Data Insert
+  - `insert into users(user_id, name) values("foo","jeoungho")`
+- 3 . topic log 확인
+
+
+### 2 - 3 ) Kafka Sink Connect
+- Kafka 토픽에서 데이터를 읽어 외부 시스템이나 데이터베이스로 전송하는 역할을 하는 Kafka Connect의 구성
+  - Kafka에 저장된 데이터를 다양한 목적지 시스템, 예를 들어 데이터베이스, 파일 시스템, 검색 엔진 등에 실시간으로 저장하거나 처리할 수 있음
+
+#### 2 - 3 - A ) Sink Connect 등록
+```yaml
+# ✅ JdbcSinkConnector 를 등록 해야한다.
+#    - "topic" -> "topics" 로 등록해야한다. 
+#      - sink 등록 시 해당 topics로 지정된 "Table이 생성"된다.
+#
+# > 지정한 topics인 "my_topic_users" 테이블이 생성된다. 
+#   - source connector에 등록된 topic을 sink connector로 감지해서 해당 값을 그대로 table로 동기화 해주는 것이다
+```
+- Http Method : POST
+- Header : Content-Type - application/json
+- Uri : `localhost:8083/connectors`
+- Body
+```javascript
+{
+  "name": "my-sink-connect",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector", 
+    "connection.url": "jdbc:mariadb://local-db:3306/mydb",
+    "connection.user": "root",
+    "connection.password": "123",
+    "auto.create": "true",
+    "auto.evolve": "true",
+    "delete.enabled": "false",
+    "tasks.max": "1",
+    "topics": "my_topic_users"  
+  }
+}
+```
+
+#### 2 - 3 - B ) Sink Connect 테스트
+- 1 . sink connector로 생성된 Table에 조회
+  - source connector 지정 table과 동기화 되어있는것을 확인 가능  
+- 2 . source connector 지정 table에 data insert
+  - source connector 지정 table과 동기화 되어있는것을 확인 가능
+- 3 . kafka-console-consumer.sh 에서 해당 topic log를 사용해서 `kafka-console-producer`에 주입
+  ```javascript
+  {
+    "type": "string",
+    "optional": true,
+    "field": "user_id"
+  },
+  {
+    "type": "string",
+    "optional": true,
+    "field": "pwd"
+  },
+  {
+    "type": "string",
+    "optional": true,
+    "field": "name"
+  },
+  {
+    "type": "int64",
+    "optional": true,
+    "name": "org.apache.kafka.connect.data.Timestamp",
+    "version": 1,
+    "field": "created_at"
+  }
+  ],
+  "optional": false,
+  "name": "users"
+  },
+  "payload": {
+    "id": 9,
+    "user_id": "add-userd-producer",
+    "pwd": null,
+    "name": "kafka-producer",
+    "created_at": 1741437467000
+  }
+  ```
+- 4 . sink connector로 생성된 Table에 조회 시 해당 값이 추가 되어 있음
+  - ✅ **sink table에는 추가되어 있지만 source table에는 추가 되어 있지 않음** => 당연한 결과이다. 
+    - sink table : kafka의 topic에서 넘어온 **JSON 기준으로 Table 데이터 생성**
+    - source connector 지징 table : 원본 테이블
