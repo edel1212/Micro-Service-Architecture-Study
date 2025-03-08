@@ -46,10 +46,15 @@ kafka-console-producer.sh --bootstrap-server [ Kafka Broker 도메인 ] --topic 
 - Volume 설정 시 필요로 하는 자료를 미리 준비해야한다.
   - Mariadb Client ( gradle or maven에서 받은 jar를 복사 후 사용 )
   - confluentinc Jdbc lib ( 공식 홈페이지에서 다운로드 후 lib 위치 jar 사용 )
+- ☠️ 삽질
+  - 버전 호환 문제
+    - kafka 및 kafka-connect **버전 다운그레이드**
+  > The issue was resolved by downgrading Kafka to version 3.8.x. According to the release notes for Kafka 3.9.0, the SystemTime class was changed to a singleton,   
+  > and instead of creating an instance with new SystemTime();, it was modified to obtain the instance by calling the SystemTime.getSystemTime(); method.
 ```yaml
 services:
   zookeeper:
-    image: bitnami/zookeeper:latest 
+    image: bitnami/zookeeper:latest
     container_name: zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
@@ -59,7 +64,7 @@ services:
       - ecommerce-network
 
   kafka:
-    image: bitnami/kafka:latest 
+    image: bitnami/kafka:3.8.0  # ✅ kafka connector JDBC 이슈로인한 버전 다운
     container_name: kafka
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
@@ -70,12 +75,10 @@ services:
       - ecommerce-network
 
   kafka-connector-mariadb:
-    image: confluentinc/cp-kafka-connect:latest
+    image: confluentinc/cp-kafka-connect:7.7.0 # ✅ 호환 문제로 인한 버전 다운
+    container_name: kafka-connector
     ports:
       - 8083:8083
-    links:
-      - kafka
-      - zookeeper
     environment:
       CONNECT_BOOTSTRAP_SERVERS: kafka:9092
       CONNECT_REST_PORT: 8083
@@ -101,29 +104,37 @@ services:
 networks:
   ecommerce-network:
     driver: bridge
+
 ```
 
 ### 2 - 1 ) Kafka Source Connect 
 
 #### 2 - 1 - A ) Source Connect 등록 
+```yaml
+# ☠️ 삽질 : config.connector.class 설정 시 "JdbcSourceConnector"로 해줘야한다.. 
+#         - "jdbc.JdbcSinkConnector" 로 설정하여 삽질함 사용처가 다름 ... ( 에러가 없어 더 찾기 오래 걸림 )
+#         - JdbcSourceConnector : 데이터베이스에서 Kafka로 데이터 읽기 | JdbcSinkConnector : Kafka에서 데이터베이스로 데이터 쓰기
+```
 - Http Method : POST
 - Header : Content-Type - application/json
 - Uri : `localhost:8083/connectors`
 - Body
 ```javascript
 {
-    "name":"order-sink-connect", // 지정 이름
-    "config":{
-        "connector.class":"io.confluent.connect.jdbc.JdbcSinkConnector",
-        "connection.url":"jdbc:mariadb://mariadb:3306/mydb",
-        "connection.user":"root",
-        "connection.password":"123",
+    "name": "my-source-connect",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+        "connection.url": "jdbc:mariadb://local-db:3306/mydb",
+        "connection.user": "root",
+        "connection.password": "123",
         "mode": "incrementing",
-        "incrementing.column.name" : "id",
-        "table.whitelist":"users",
-        "topics": "my-topic",
-        "topic.prefix" : "my_topic_",
-        "tasks.max" : "1"
+        "incrementing.column.name": "id",
+        "table.whitelist": "users",
+        "topic.prefix": "my_topic_",
+        "tasks.max": "1",
+        "poll.interval.ms" : 10000,
+        "topic.creation.default.replication.factor":1,
+        "topic.creation.default.partitions" : 1
     }
 }
 ```
