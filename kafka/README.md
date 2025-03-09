@@ -51,6 +51,9 @@ kafka-console-producer.sh --bootstrap-server [ Kafka Broker 도메인 ] --topic 
     - kafka 및 kafka-connect **버전 다운그레이드**
   > The issue was resolved by downgrading Kafka to version 3.8.x. According to the release notes for Kafka 3.9.0, the SystemTime class was changed to a singleton,   
   > and instead of creating an instance with new SystemTime();, it was modified to obtain the instance by calling the SystemTime.getSystemTime(); method.
+  - kafka 외부 접근 불가 문제
+    - KAFKA_CFG_LISTENERS - 설정 필요
+    - KAFKA_CFG_ADVERTISED_LISTENERS - 설정 필요
 ```yaml
 services:
   zookeeper:
@@ -69,6 +72,8 @@ services:
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
     ports:
       - "9092:9092"
     networks:
@@ -104,7 +109,6 @@ services:
 networks:
   ecommerce-network:
     driver: bridge
-
 ```
 
 ### 2 - 2 ) Kafka Source Connect
