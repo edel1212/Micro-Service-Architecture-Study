@@ -53,7 +53,7 @@ kafka-console-producer.sh --bootstrap-server [ Kafka Broker 도메인 ] --topic 
   > and instead of creating an instance with new SystemTime();, it was modified to obtain the instance by calling the SystemTime.getSystemTime(); method.
   - kafka 외부 접근 불가 문제
     - KAFKA_CFG_LISTENERS - 설정 필요
-    - KAFKA_CFG_ADVERTISED_LISTENERS - 설정 필요
+    - KAFKA_CFG_ADVERTISED_LISTENERS - 설정 필요정
 ```yaml
 services:
   zookeeper:
@@ -240,3 +240,82 @@ networks:
   - ✅ **sink table에는 추가되어 있지만 source table에는 추가 되어 있지 않음** => 당연한 결과이다. 
     - sink table : kafka의 topic에서 넘어온 **JSON 기준으로 Table 데이터 생성**
     - source connector 지징 table : 원본 테이블
+
+## 3 ) Kafka using spring-boot
+
+### 3 - 1 ) kafka consumer
+
+#### 3 - 1 - A ) build.gradle
+```groovy
+dependencies {
+  // kafka
+  implementation 'org.springframework.kafka:spring-kafka'
+  testImplementation 'org.springframework.kafka:spring-kafka-test'
+}
+```
+
+#### 3 - 1 - B ) kafka consumer config
+- `@EnableKafka`를 사용하여 KafkaListener 활성화
+  - **Kafka Listener를 자동으로 감지**하고 **관리**할 수 있도록 설정하는 역할을 함
+- 사용하기에 StringDeserializer **설정 필수**
+```java
+@EnableKafka
+@Configuration
+public class KafkaConsumerConfig {
+    @Bean
+    public ConsumerFactory<String, String> consumerFactory(){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "consumerGroupId");
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+
+        return new DefaultKafkaConsumerFactory<>(properties);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory
+                = new ConcurrentKafkaListenerContainerFactory<>();
+        kafkaListenerContainerFactory.setConsumerFactory(consumerFactory());
+
+        return kafkaListenerContainerFactory;
+    }
+}
+```
+#### 3 - 1 - C ) kafka consumer (Message Receive)
+- `@KafkaListener(topics = "전달받을 토픽 지정")`을 지정한 메서드의 argument에서 message를 받음
+```java
+@Service
+@RequiredArgsConstructor
+@Log4j2
+public class KafkaConsumer {
+    private final CatalogRepository catalogRepository;
+    private final ObjectMapper mapper;
+
+    @KafkaListener(topics = "example-catalog-topic")
+    public void updateQty(String kafkaMessage){
+        log.info("kafka Message: -> {}", kafkaMessage);
+        Map<Object, Object> map = new HashMap<>();
+        // String -> JSON
+        try {
+            map = mapper.readValue(kafkaMessage, new TypeReference<>() {});
+        } catch (Exception e){
+            e.printStackTrace();;
+        } // try - catch
+
+        String productId = (String) map.get("productId");
+        log.info("productId :: {}", productId);
+
+        CatalogEntity entity = catalogRepository.findByProductId(productId);
+        if(entity != null){
+            // update to qty
+            int qty = (Integer) map.get("qty");
+            entity.setStock(entity.getStock() - qty);
+            catalogRepository.save(entity);
+        } // if
+
+    }
+}
+```
