@@ -319,3 +319,55 @@ public class KafkaConsumer {
     }
 }
 ```
+
+### 3 - 2 ) kafka producer
+- build.gradle은 같기에 제외
+
+#### 3 - 2 - A ) kafka producer config
+- 직렬와를 위해 `StringSerializer`를 사용해야함
+  - ✅ 주의사항 : import 시 java에서 제공하는 class가 아닌 **kafka에서 제공하는 class 사용**
+```java
+@EnableKafka
+@Configuration
+public class KafkaProducerConfig {
+    @Bean
+    public ProducerFactory<String, String> producerFactory(){
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
+        return new DefaultKafkaProducerFactory<>(properties);
+    }
+
+    @Bean
+    public KafkaTemplate<String, String> kafkaTemplate(){
+        return new KafkaTemplate<>(producerFactory());
+    }
+}
+```
+
+#### 3 - 2 - B ) kafka producer (Message send)
+```java
+@Log4j2
+@Service
+@RequiredArgsConstructor
+public class KafkaProducer {
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+
+    public OrderDto send(String topic, OrderDto orderDto){
+        String jsonInString = "";
+        try{
+            jsonInString = objectMapper.writeValueAsString(orderDto);
+        } catch (Exception e){
+            e.printStackTrace();
+        } // try - catch
+
+        kafkaTemplate.send(topic, jsonInString);
+        log.info("kafka Producer sent data from the Order micro service :: {}", orderDto);
+
+        return orderDto;
+    }
+}
+```
