@@ -3,6 +3,7 @@ package com.yoo.order_service.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yoo.order_service.dto.OrderDto;
 import com.yoo.order_service.entity.OrderEntity;
+import com.yoo.order_service.messagequeue.KafkaOrderProducer;
 import com.yoo.order_service.messagequeue.KafkaProducer;
 import com.yoo.order_service.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,23 +21,20 @@ public class OrderServiceImpl implements OrderService {
     private final ObjectMapper mapper;
     private final OrderRepository orderRepository;
     private final KafkaProducer kafkaProducer;
+    private final KafkaOrderProducer kafkaOrderProducer;
 
     @Override
     public OrderDto createOrder(OrderDto orderDto) {
         orderDto.setOrderId(UUID.randomUUID().toString());
         orderDto.setTotalPrice(orderDto.getQty() * orderDto.getUnitPrice());
 
-        OrderEntity orderEntity = mapper.convertValue(orderDto, OrderEntity.class);
-
-        orderRepository.save(orderEntity);
-
-        OrderDto returnValue = mapper.convertValue(orderEntity, OrderDto.class);
-
         /* send this order kafka */
         // ✅ topic명은 consumer에서 소모할 topic과 일치 해야함
-        kafkaProducer.send("example-catalog-topic", returnValue);
+        kafkaProducer.send("example-catalog-topic", orderDto);
+        // Kafka Connect Sink 전송 ( DB - 저장  )
+        kafkaOrderProducer.send("orders", orderDto);
 
-        return returnValue;
+        return orderDto;
     }
 
     @Override
