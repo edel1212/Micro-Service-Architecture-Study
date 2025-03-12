@@ -54,6 +54,10 @@ kafka-console-producer.sh --bootstrap-server [ Kafka Broker 도메인 ] --topic 
   - kafka 외부 접근 불가 문제
     - KAFKA_CFG_LISTENERS - 설정 필요
     - KAFKA_CFG_ADVERTISED_LISTENERS - 설정 필요정
+  - `KAFKA_CFG` Prefix
+    - bitnami용 Kafka Docker Image를 사용할 경우 권장하는 방법이다.
+  - EXTERNAL 설정
+    - kafka가 내부, 외부 설정이 필요할 경우 설정해줘야한다.
 ```yaml
 services:
   zookeeper:
@@ -72,10 +76,13 @@ services:
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:19092,EXTERNAL://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
     ports:
-      - "9092:9092"
+      - 9092:9092
+      - 19092:19092
     networks:
       - ecommerce-network
 
@@ -85,7 +92,7 @@ services:
     ports:
       - 8083:8083
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_BOOTSTRAP_SERVERS: kafka:19092
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: "quickstart-avro"
       CONNECT_CONFIG_STORAGE_TOPIC: "quickstart-avro-config"
@@ -105,6 +112,8 @@ services:
       - ./jars:/etc/kafka-connect/jars #jars파일들 volume을 통하여 사용
     networks:
       - ecommerce-network
+    depends_on:
+      - kafka
 
 networks:
   ecommerce-network:
