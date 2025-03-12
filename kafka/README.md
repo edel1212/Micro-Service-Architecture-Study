@@ -391,3 +391,25 @@ public class KafkaProducer {
 #   - [ Consumer ] Catalog Service Application ( 1개 )
 #                  - "example-catalog-topic"을 통헤 Message 전달 받은 데이터를 사용해 Catalog DB 수정
 ```
+
+### 4 - 1 ) Kafka Sink Connect 설정
+- 이미 생성되어 있는 DB에 Kafka Producer를 통해 Message를 주입하여 Data를 Insert 하는 방식으로 **Kafka Source Connect 설정 불필요**
+  - Kafka Source Connect은 **감지 대상의 변경된 내용을 kafka Message로 밀어넣는 방법**이기에 설정이 불필요 한것
+- topics의 이름은 **대상이 될 Table명**으로 지정
+```javascript
+{
+  "name": "my-order-sink-connect",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector", 
+    "connection.url": "jdbc:mariadb://local-db:3306/mydb",
+    "connection.user": "root",
+    "connection.password": "123",
+    "auto.create": "true",
+    "auto.evolve": "true",
+    "delete.enabled": "false",
+    "tasks.max": "1",
+    // 👉 Table명으로 지정
+    "topics": "orders"  
+  }
+}
+```
