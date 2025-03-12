@@ -380,3 +380,14 @@ public class KafkaProducer {
     }
 }
 ```
+
+## 4 ) Kafka Connect using spring-boot
+```yaml
+# ✅ 전체적인 흐름
+#   - 👉 사용자의 주문 요청
+#   - [ Producer ] Order Service Application ( N개 )
+#                  - Kafka의 지정 토픽인 "example-catalog-topic"을 통헤 Message 전달
+#                  - Kafka Connector Sink를 사용 DB저장
+#   - [ Consumer ] Catalog Service Application ( 1개 )
+#                  - "example-catalog-topic"을 통헤 Message 전달 받은 데이터를 사용해 Catalog DB 수정
+```
