@@ -57,7 +57,7 @@ spring:
           filters:
             - RemoveRequestHeader=Cookie
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
-            - AuthorizationHeaderFilter
+           # - AuthorizationHeaderFilter 임시 주석
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
           predicates:
