@@ -22,6 +22,53 @@
 | **Timeout 처리** | 특정 서비스의 응답이 **너무 오래 걸릴 경우 자동으로 요청을 중단** |
 
 
+## 1 ) Resilience4j
+- Java 애플리케이션에서 마이크로서비스의 **회복력(Resilience)을 향상시키기 위해 사용**되는 경량 라이브러리
+  - 가볍고 모듈화된 구조 (필요한 기능만 선택하여 사용 가능)
+  - Spring Boot와 쉽게 통합 가능 (resilience4j-spring-boot 제공)
+
+## 2 ) 기본 설정으로 사용
+
+### 2 - 1 ) build.gradle
+```groovy
+dependencies {
+	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
+}
+```
+
+### 2 - 2 ) BusinessLogic - ServiceImpl
+- CircuitBreaker 객체를 생성 시 `.create("아무거나 지정 가능")` 값은 다른 설정을 적용하고 관리하기 위해서 사용된다.
+  - `aplication.yml`에서 설정을 정의할 수 있으며, **같은 이름을 가진 서킷 브레이커는 같은 설정을 공유**
+- `.run()`을 사용 시 첫번째 argument는 `Supplier<T>`이며, 두번쨰는 `Function<Throwable, R>`이다.
+```java
+@RequiredArgsConstructor
+@Log4j2
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final OrderServiceClient orderServiceClient;
+    // ✅ CircuitBreakerFactory 의존성 주입
+    private final CircuitBreakerFactory circuitBreakerFactory;
+
+    @Override
+    public UserDto getUserByUserId(String userId) {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
+
+        // 1 . CircuitBreaker 객체를 생성
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        // 2 . circuitBreaker의 run()를 사용해 필요한 값과 실패 했을 경우 대체 처리 방법을 지정
+        List<ResponseOrder> orders  = circuitBreaker.run( () -> orderServiceClient.getOrders(userId)
+                                        , trouble -> new ArrayList<>() );
+        userDto.setOrders(orders);
+
+        return userDto;
+    }
+
+}
+```
+
 
 
 
