@@ -10,13 +10,13 @@ import com.yoo.user_service.vo.ResponseOrder;
 import com.yoo.user_service.vo.ResponseUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.core.env.Environment;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +31,8 @@ public class UserServiceImpl implements UserService {
     private final ObjectMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
-    private final RestTemplate restTemplate;
-    private final Environment env;
     private final OrderServiceClient orderServiceClient;
+    private final CircuitBreakerFactory circuitBreakerFactory;
 
     @Override
     public ResponseUser createUser(RequestUser requestUser) {
@@ -56,10 +55,17 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserByUserId(String userId) {
         UserEntity userEntity = userRepository.findByUserId(userId);
         UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
+
         // feign 사용해서 값을 받아옴
-        List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
+        //List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
+
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        List<ResponseOrder> orders  = circuitBreaker.run( () -> orderServiceClient.getOrders(userId)
+                                        , trouble -> new ArrayList<>() );
+
         userDto.setOrders(orders);
-        //List<FailResponseOrder> orders404 = orderServiceClient.getOrdersNotMatchResponse(userId);
+
+
         return userDto;
     }
 
