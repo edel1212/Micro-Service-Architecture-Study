@@ -37,6 +37,8 @@ spring:
       ddl-auto: create  # 애플리케이션 실행 시 DB 초기화 방식
     show-sql: true  # SQL 실행문 로깅
 
+
+
 # Eureka 설정
 eureka:
   instance:
@@ -54,14 +56,24 @@ eureka:
 greeting:
   message: This is Micro User Service!!
 
-# Actuator 설정
+
 management:
+  # Actuator 설정
   endpoints:
     web:
       exposure:
         # /actuator/** 로 사용할 기능 설정
         include: refresh, health, beans, busrefresh
 
+  # Zipkin 설정
+  tracing:
+    sampling:
+      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
+
+# FeignClient Log 설정
 logging:
   level:
     com.yoo.user_service.feignClient: DEBUG

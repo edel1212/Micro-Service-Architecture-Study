@@ -64,6 +64,10 @@ dependencies {
 	// Circuitbreaker-resilience4j
 	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 
+	// Zipkin
+	// ✅ actuator 주입 또한 필수 상단에 주입하였기에 제외
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 }
 
 tasks.withType(JavaCompile) {
