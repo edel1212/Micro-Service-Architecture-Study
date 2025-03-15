@@ -61,7 +61,7 @@ dependencies {
 	// Open Feign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-	// Circuitbreaker-resilience4j
+	// Circuitbreaker-resilience4j가
 	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 
 	// Zipkin
