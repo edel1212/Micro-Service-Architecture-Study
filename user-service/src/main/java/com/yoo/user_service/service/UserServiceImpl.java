@@ -56,15 +56,13 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findByUserId(userId);
         UserDto userDto = mapper.convertValue(userEntity, UserDto.class);
 
-        // feign 사용해서 값을 받아옴
-        //List<ResponseOrder> orders = orderServiceClient.getOrders(userId);
-
-        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("circuitbreaker");
+        log.info("Before call order microservice");
+        // CircuitBreaker를 사용 -> feign을 요청하여 값을 받아옴
+        CircuitBreaker circuitBreaker = circuitBreakerFactory.create("order-service");
         List<ResponseOrder> orders  = circuitBreaker.run( () -> orderServiceClient.getOrders(userId)
                                         , trouble -> new ArrayList<>() );
 
         userDto.setOrders(orders);
-
 
         return userDto;
     }
