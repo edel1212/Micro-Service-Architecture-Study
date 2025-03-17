@@ -63,7 +63,7 @@ management:
     web:
       exposure:
         # /actuator/** 로 사용할 기능 설정
-        include: refresh, health, beans, busrefresh
+        include: refresh, health, beans, busrefresh, circuitbreakers
 
   # Zipkin 설정
   tracing:

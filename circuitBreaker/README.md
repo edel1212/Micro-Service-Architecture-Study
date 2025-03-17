@@ -106,9 +106,51 @@ public class Resilience4JConfig {
     }
 }
 ```
+## 4 ) CircuitBreaker 상태 확인
 
+- ### application.yml
+  - Actuator 설정 내 circuitbreakers 활성화
+```yaml
+management:
+  # Actuator 설정
+  endpoints:
+    web:
+      exposure:
+        # /actuator/** 로 사용할 기능 설정
+        include:  circuitbreakers
 
+  # Zipkin 설정
+  tracing:
+    sampling:
+      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
+    propagation:
+      consume: B3
+      produce: B3_MULTI
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
+```
 
+- ### Link
+  - `도메인/actuator/circuitbreakers`을 통해 상태확인 가능
+    ```javascript
+    {
+      "circuitBreakers": {
+        "order-service": {
+          "failureRate": "-1.0%",
+          "slowCallRate": "-1.0%",
+          "failureRateThreshold": "4.0%",
+          "slowCallRateThreshold": "100.0%",
+          "bufferedCalls": 2,
+          "failedCalls": 1,
+          "slowCalls": 0,
+          "slowFailedCalls": 0,
+          "notPermittedCalls": 0,
+          "state": "HALF_OPEN"
+        }
+      }
+    }      
+    ```
 
 
 
