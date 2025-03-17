@@ -68,3 +68,16 @@ management:
     tracing:
       endpoint: "http://localhost:9411/api/v2/spans" # ⭐️ Zipkin 서버 주소
 ```
+
+## 3 ) 흐름
+- `User-Service`와 `Order-Service`가 있는 상태에서 `User-Service` --(Feign)--> `Order-Service` 데이터를 가져 옴
+  - User-Service에는 CircuitBreak-Resilience4j가 적용되어 있음 [참고](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/circuitBreaker)
+
+### 3 - 1 ) 정상 호출의 경우
+![img_1.png](img_1.png)
+- 1 . Zipkin server 구동 ( localhost:지정포트에서 DashBoard 제공 )
+- 2 . User-Server 내 회원 정보 조회 시 Order-Service를 Feign을 사용해서 연계 
+  - User-Service Log : `INFO 44979 --- [user-service] [o-auto-1-exec-2] [67d80aa8671180db5e6c42b3122a1572-95964a71262d2f34] c.y.u.service.UserServiceImp`
+    -  Trace ID 가 67d80aa8671180db5e6c42b3122a1572 인것을 확인가능
+  - Order-Service Log : `INFO 44984 --- [order-service] [o-auto-1-exec-2] [67d80aa8671180db5e6c42b3122a1572-b0615e8f592a92f6] c.y.o.controller.OrderController`
+    -  Trace ID 67d80aa8671180db5e6c42b3122a1572 로 같은 것을 볼 수 있음
