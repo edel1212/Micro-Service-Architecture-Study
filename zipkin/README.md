@@ -73,7 +73,7 @@ management:
 - `User-Service`와 `Order-Service`가 있는 상태에서 `User-Service` --(Feign)--> `Order-Service` 데이터를 가져 옴
   - User-Service에는 CircuitBreak-Resilience4j가 적용되어 있음 [참고](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/circuitBreaker)
 
-### 3 - 1 ) 정상 호출의 경우
+### 3 - 1 ) 연계 성공
 ![img_1.png](img_1.png)
 - 1 . Zipkin server 구동 ( localhost:지정포트에서 DashBoard 제공 )
 - 2 . User-Server 내 회원 정보 조회 시 Order-Service를 Feign을 사용해서 연계 
@@ -81,3 +81,11 @@ management:
     -  Trace ID 가 67d80aa8671180db5e6c42b3122a1572 인것을 확인가능
   - Order-Service Log : `INFO 44984 --- [order-service] [o-auto-1-exec-2] [67d80aa8671180db5e6c42b3122a1572-b0615e8f592a92f6] c.y.o.controller.OrderController`
     -  Trace ID 67d80aa8671180db5e6c42b3122a1572 로 같은 것을 볼 수 있음
+
+### 3 - 2 ) 연계 실패
+![img_2.png](img_2.png)
+- 1 . Zipkin server 구동 ( localhost:지정포트에서 DashBoard 제공 )
+- 2 . User-Server 내 회원 정보 조회 시 Order-Service를 Feign을 사용해서 연계
+  - CircuitBreakerConfig 설정 시 **요청이 2초 이상 걸리면 자동으로 타임아웃 발생** 설정
+- 3 . Order-Service 내 요청을 받을 시 랜덤하게 5초 지연하게 끔 설정 하여 애러 발생
+  - CircuitBreaker 정상 작동 확인하기 위함
