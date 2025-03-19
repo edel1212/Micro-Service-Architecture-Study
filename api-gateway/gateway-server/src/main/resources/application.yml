@@ -73,7 +73,7 @@ management:
     web:
       exposure:
         # /actuator/** 로 사용할 기능 설정
-        include: refresh, health, beans, httpexchanges, busrefresh
+        include: refresh, health, beans, httpexchanges, busrefresh, info, metrics, prometheus
 
 eureka:
   client:

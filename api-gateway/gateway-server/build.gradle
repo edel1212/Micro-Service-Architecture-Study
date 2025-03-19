@@ -47,6 +47,10 @@ dependencies {
 	// Spring Cloud Bus - AMQP(RabbitMQ)
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bus-amqp', version: '4.2.0'
 
+	// Prometheus
+	// ✅ actuator 주입 또한 필수 상단에 주입하였기에 제외
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 dependencyManagement {

@@ -36,6 +36,12 @@ management:
   zipkin:
     tracing:
       endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
+  # Actuator 설정
+  endpoints:
+    web:
+      exposure:
+        # /actuator/** 로 사용할 기능 설정
+        include: refresh, health, beans, httpexchanges, busrefresh, info, metrics, prometheus
 
 eureka:
   instance:
