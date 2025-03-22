@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: ../discovery-service
+    container_name: discover-service
+    ports:
+      - "8761:8761"
+    networks:
+      - micro-service-network
+
+networks:
+  micro-service-network:
+    driver: bridge
