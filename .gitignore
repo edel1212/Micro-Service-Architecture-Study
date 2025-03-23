@@ -3,3 +3,5 @@
 
 config-service/.gradle
 config-service/build
+
+docker-compose/data
