@@ -1,10 +1,25 @@
 services:
-  app:
+  discover-service:
     build:
       context: ../discovery-service
     container_name: discover-service
     ports:
       - "8761:8761"
+    networks:
+      - micro-service-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management  # 관리 UI 포함된 버전
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # AMQP 프로토콜 포트
+      - "15672:15672"  # 웹 UI 포트
+      - "4369:4369"    # 클러스터링 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - ./data:/var/lib/rabbitmq  # 현재 디렉토리의 `data` 폴더를 마운트
     networks:
       - micro-service-network
 
