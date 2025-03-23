@@ -2,20 +2,10 @@ server:
   port: 8888 # Config Server Default Port Number
 
 spring:
+  profiles:
+    active: local
   application:
     name: config-service
-  # RabbitMQ Setting
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username : admin
-    password: admin
-  cloud:
-    config:
-      server:
-        git:
-#          uri: file:///Users/yoo/Desktop/Project/config-repo [ local repository ]
-          uri: https://github.com/edel1212/config-repo.git
 
 # Actuator 설정
 management:
@@ -23,29 +13,7 @@ management:
     web:
       exposure:
         # /actuator/** 로 사용할 기능 설정
-        include: health, busrefresh
-
-## ✨ 대칭키 방식
-#encrypt:
-#  key: abcdefghijklmnopqrstuvwxyz0123456789
-
-## ✨ 비대칭키 방식
-encrypt:
-  key-store:
-    location: file://${user.home}/Desktop/Project/keystroe/apiEncryptionKey.jks
-    password: 123456
-    alias: apiEncryptionKey
+        include: health, busrefresh, metrics, prometheus
 
 
-#################
-## native 설정 ###
-#################
-#spring:
-#  profiles:
-#    active: native
-#  cloud:
-#    config:
-#      server:
-#        native:
-#          search-locations: file:///Users/yoo/Desktop/Project/Micro-Service-Architecture-Study/native-file-repo
 

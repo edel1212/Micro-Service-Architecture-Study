@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.yoo'
-version = '0.0.1-SNAPSHOT'
+version = '1.0-SNAPSHOT'
 
 java {
 	toolchain {
@@ -36,6 +36,9 @@ dependencies {
 	// Config Client
 	implementation 'org.springframework.cloud:spring-cloud-starter'
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+	// Prometheus
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 }
 
 dependencyManagement {

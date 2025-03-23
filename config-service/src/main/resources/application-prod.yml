@@ -1,0 +1,22 @@
+spring:
+  # RabbitMQ Setting
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username : admin
+    password: admin
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/edel1212/config-repo.git
+
+## ✨ 비대칭키 방식
+encrypt:
+  key-store:
+    location: file:/apiEncryptionKey.jks
+    password: 123456
+    alias: apiEncryptionKey
+
+
+
