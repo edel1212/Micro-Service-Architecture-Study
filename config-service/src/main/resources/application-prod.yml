@@ -14,7 +14,8 @@ spring:
 ## ✨ 비대칭키 방식
 encrypt:
   key-store:
-    location: file:/apiEncryptionKey.jks
+    # ✅ 해당 apiEncryptionKey.jks 파일은 DockerFile 생성 시 /app Directory로 카피했음
+    location: file:///app/apiEncryptionKey.jks
     password: 123456
     alias: apiEncryptionKey
 

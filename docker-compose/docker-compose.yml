@@ -8,8 +8,17 @@ services:
     networks:
       - micro-service-network
 
+  config-service:
+    build:
+      context: ../config-service
+    container_name: config-service
+    ports:
+      - "8888:8888"
+    networks:
+      - micro-service-network
+
   rabbitmq:
-    image: rabbitmq:3.12-management  # 관리 UI 포함된 버전
+    image: rabbitmq:3.12-management  # 관리 UI 포함된 버전ㅇ
     container_name: rabbitmq
     ports:
       - "5672:5672"    # AMQP 프로토콜 포트
