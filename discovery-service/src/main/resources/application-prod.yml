@@ -1,0 +1,6 @@
+spring:
+  # Config Server Setting
+  cloud:
+    config:
+      uri: config-service:8888
+      name: ecommerce  # `user-service.yml`을 읽도록 설정
