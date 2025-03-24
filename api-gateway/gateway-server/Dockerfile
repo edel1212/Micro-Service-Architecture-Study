@@ -6,10 +6,9 @@ FROM openjdk:21-jdk
 WORKDIR /app
 
 # Copy the compiled jar file into the container
-COPY ./build/libs/ecoomerce-0.0.1-SNAPSHOT.jar app.jar
+COPY ./build/libs/gateway-server-1.0.jar app.jar
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8761
+EXPOSE 8000
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

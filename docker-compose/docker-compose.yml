@@ -1,13 +1,4 @@
 services:
-  discover-service:
-    build:
-      context: ../discovery-service
-    container_name: discover-service
-    ports:
-      - "8761:8761"
-    networks:
-      - micro-service-network
-
   config-service:
     build:
       context: ../config-service
@@ -17,8 +8,36 @@ services:
     networks:
       - micro-service-network
 
+  discover-service:
+    build:
+      context: ../discovery-service
+    container_name: discover-service
+    ports:
+      - "8761:8761"
+    networks:
+      - micro-service-network
+    depends_on:
+      - config-service
+
+  api-gateway-service:
+    build:
+      context: ../api-gateway/gateway-server
+    container_name: api-gateway-service
+    ports:
+      - "8000:8000"
+    networks:
+      - micro-service-network
+    environment:
+      - "spring.cloud.config.uri=http://config-service:8888"
+      - "spring.rabbitmq.host=rabbitmq"
+      #- "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+    depends_on:
+      - config-service
+      - discover-service
+      - rabbitmq
+
   rabbitmq:
-    image: rabbitmq:3.12-management  # 관리 UI 포함된 버전ㅇ
+    image: rabbitmq:3.12-management  # 관리 UI 포함된 버전
     container_name: rabbitmq
     ports:
       - "5672:5672"    # AMQP 프로토콜 포트
