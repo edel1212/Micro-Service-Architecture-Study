@@ -20,6 +20,8 @@ dependencies {
   - defaultZone : EurekaServer 도메인 지정
 - ✨ 추가 ) CLI를 통해 Port 동적 할당 방법
   - `./gradlew bootRun --args='--server.port=9003'`를 사용하면 `${SERVER_PORT}`를 사용하지 않고도 포트 지정 가능 
+- ☠️ 삽질 ...
+  - `eureka.client.service-url.defaultZone` 구조를 잊지 말자 잘못된 구조로 서버 기동 시 에러는 없지만 **localhost:8761(기본 값)** 으로 서버가 기동 됨
 ```yaml
 server:
   port: ${SERVER_PORT}
