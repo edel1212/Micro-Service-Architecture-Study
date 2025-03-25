@@ -4,4 +4,5 @@
 config-service/.gradle
 config-service/build
 
-docker-compose/data
+docker-compose/rabbitmq-volume
+docker-compose/mariadb-volume
