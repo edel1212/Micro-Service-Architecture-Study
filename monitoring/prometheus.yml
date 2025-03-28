@@ -1,0 +1,23 @@
+scrape_configs:
+  # ⭐️ prometheus 자체 수집을 위해 사용 - 대규모 시스템에서는 Prometheus 자체를 모니터링하는 것이 중요할 수 있음
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: "api-gateway-service"
+    metrics_path: "/actuator/prometheus"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["api-gateway-service:8000"]
+
+  - job_name: "user-service"
+    metrics_path: "/user-service/actuator/prometheus"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["api-gateway-service:8000"]
+
+  - job_name: "order-service"
+    metrics_path: "/order-service/actuator/prometheus"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["api-gateway-service:8000"]
