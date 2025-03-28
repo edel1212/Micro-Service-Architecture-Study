@@ -66,4 +66,7 @@ services:
 
 networks:
   micro-service-network:
-    driver: bridge
+    #driver: bridge
+    # ✅ "docker network create micro-service-network" 명령어를 통해 network를 생성
+    #     - 서로 다른 docker-compose.yml을 연결하여 사용하기 위함
+    external: true  # 이미 생성된 네트워크 사용
