@@ -6,4 +6,10 @@ services:
       - "9411:9411"
     environment:
       - STORAGE_TYPE=mem
-    restart: always
+    networks:
+      - micro-service-network
+
+networks:
+  micro-service-network:
+    #driver: bridge
+    external: true  # 이미 생성된 네트워크 사용	
