@@ -30,11 +30,20 @@ services:
     environment:
       - "spring.cloud.config.uri=http://config-service:8888"
       - "spring.rabbitmq.host=rabbitmq"
-      #- "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+      - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
     depends_on:
       - config-service
       - discover-service
       - rabbitmq
+
+  user-service:
+    build:
+      context: ../user-service
+    container_name: user-service
+    networks:
+      - micro-service-network
+    depends_on:
+      - api-gateway-service
 
   rabbitmq:
     image: rabbitmq:3.12-management  # 관리 UI 포함된 버전
