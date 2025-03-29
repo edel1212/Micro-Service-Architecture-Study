@@ -5,8 +5,57 @@ spring:
   application:
     name: user-service
 
+  ## ☠️ 삽집 config server 구동 시 application.yml을 분리하여 사용 시 정상적인 config-service 내 profile을 받아올 수 없음
+  #      - profiles.active 설정 과 config 설정 파일을 application.yml 한곳에 두면 특이상없이 구동은 가능함
   profiles:
-    active: local
+    active: dev
+
+  # RabbitMQ Setting
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: admin
+    password: admin
+
+  # Config Server Setting
+  config:
+    import: optional:configserver:http://localhost:8888
+  cloud:
+    config:
+      name: user-service  # `user-service.yml`을 읽도록 설정
+
+  # h2 접근 설절
+  h2:
+    console:
+      # H2 콘솔 활성화 여부 (기본값: false)
+      enabled: true
+      settings:
+        # 외부에서 H2 콘솔 접속을 허용할지 여부 (보안상 주의 필요)
+        web-allow-others: true
+      # H2 콘솔 접속 URL 설정 (예: http://localhost:8080/h2-console)
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: create  # 애플리케이션 실행 시 DB 초기화 방식
+    show-sql: true  # SQL 실행문 로깅
+
+# Eureka 설정
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    # lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
+    # lease-expiration-duration-in-seconds: 10 # Heartbeat가 중단되었을 때 인스턴스를 제거하는 시간 (기본값: 90초)
+
+  # Eureka client 설정 (Eureka 서버에 등록할지 여부)
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+greeting:
+  message: This is Micro User Service!!
+
 
 management:
   # Actuator 설정
@@ -15,3 +64,19 @@ management:
       exposure:
         # /actuator/** 로 사용할 기능 설정
         include: refresh, health, beans, busrefresh, circuitbreakers, info, metrics, prometheus
+
+  # Zipkin 설정
+  tracing:
+    sampling:
+      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
+    propagation:
+      consume: B3
+      produce: B3_MULTI
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
+
+# FeignClient Log 설정
+logging:
+  level:
+    com.yoo.user_service.feignClient: DEBUG
