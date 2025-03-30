@@ -1,9 +1,12 @@
 package com.yoo.order_service.config;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -16,9 +19,18 @@ import java.util.Map;
 // -  Kafka 리스너를 자동으로 감지하고 관리할 수 있도록 설정하는 역할을 함
 @EnableKafka
 @Configuration
+@RequiredArgsConstructor
+@Log4j2
 public class KafkaProducerConfig {
+
+    private final Environment env;
+
     @Bean
     public ProducerFactory<String, String> producerFactory(){
+        String kafkaUrl = env.getProperty("kafka.url","127.0.0.1:9092");
+        log.info("---------------------");
+        log.info("kafkaUrl :: {}", kafkaUrl);
+        log.info("---------------------");
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

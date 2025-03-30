@@ -51,13 +51,29 @@ services:
     depends_on:
       - api-gateway-service
 
+  order-service:
+    build:
+      context: ../order-service
+    container_name: order-service
+    networks:
+      - micro-service-network
+    environment:
+      - "spring.cloud.config.uri=http://config-service:8888"
+      - "spring.rabbitmq.host=rabbitmq"
+      - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+      - "spring.datasource.url=jdbc:mariadb://mariadb:3306/mydb"
+      - "management.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans"
+      - "kafka.url=kafka:9092"
+    depends_on:
+      - api-gateway-service
+
   rabbitmq:
     image: rabbitmq:3.12-management  # 관리 UI 포함된 버전
     container_name: rabbitmq
     ports:
       - "5672:5672"    # AMQP 프로토콜 포트
       - "15672:15672"  # 웹 UI 포트
-      - "4369:4369"    # 클러스터링 포트
+      - "4369:4369"    # 클러스터링 포트가
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
