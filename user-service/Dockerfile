@@ -9,4 +9,4 @@ WORKDIR /app
 COPY ./build/libs/user-service-1.0.jar app.jar
 
 # Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

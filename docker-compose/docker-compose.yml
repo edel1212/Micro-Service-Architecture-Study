@@ -42,6 +42,12 @@ services:
     container_name: user-service
     networks:
       - micro-service-network
+    environment:
+      - "spring.profiles.active=prod"
+      - "spring.cloud.config.uri=http://config-service:8888"
+      - "spring.rabbitmq.host=rabbitmq"
+      - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+      - "management.zipkin.endpoint=http://zipkin:9411/api/v2/spans"
     depends_on:
       - api-gateway-service
 

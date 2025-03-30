@@ -5,8 +5,10 @@ spring:
   application:
     name: user-service
 
-  ## ☠️ 삽집 config server 구동 시 application.yml을 분리하여 사용 시 정상적인 config-service 내 profile을 받아올 수 없음
-  #      - profiles.active 설정 과 config 설정 파일을 application.yml 한곳에 두면 특이상없이 구동은 가능함
+  ## ☠️ 삽집 :: config-service에서 값을 받아오지 못했던 이슈
+  #            - 상황 ) config-service는 기동 되어있고 docker network로 연결 되어 있으며 user-service -> config-service 값을 받아옴
+  #              원인 ) config-service를 docker compose option 중 "depended-on"로 설정했지만 기동 후 완벽하게 서버가 기동되지 않을 때 요청을 하여 발생한 문제
+  #              해결 방법 ) "/actuator/refresh" 또는 "/actuator/busrefresh"를 사용하여 한번 더 로드 시켜 해결
   profiles:
     active: dev
 
@@ -66,15 +68,15 @@ management:
         include: refresh, health, beans, busrefresh, circuitbreakers, info, metrics, prometheus
 
   # Zipkin 설정
-  tracing:
-    sampling:
-      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
-    propagation:
-      consume: B3
-      produce: B3_MULTI
-  zipkin:
-    tracing:
-      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
+#  tracing:
+#    sampling:
+#      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
+#    propagation:
+#      consume: B3
+#      produce: B3_MULTI
+#  zipkin:
+#    tracing:
+#      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
 
 # FeignClient Log 설정
 logging:
