@@ -67,6 +67,19 @@ services:
     depends_on:
       - api-gateway-service
 
+  catalog-service:
+    build:
+      context: ../catalog-service
+    container_name: catalog-service
+    networks:
+      - micro-service-network
+    environment:
+      - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+      - "management.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans"
+      - "kafka.url=kafka:9092"
+    depends_on:
+      - api-gateway-service
+
   rabbitmq:
     image: rabbitmq:3.12-management  # 관리 UI 포함된 버전
     container_name: rabbitmq
