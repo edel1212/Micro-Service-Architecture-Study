@@ -68,15 +68,15 @@ management:
         include: refresh, health, beans, busrefresh, circuitbreakers, info, metrics, prometheus
 
   # Zipkin 설정
-#  tracing:
-#    sampling:
-#      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
-#    propagation:
-#      consume: B3
-#      produce: B3_MULTI
-#  zipkin:
-#    tracing:
-#      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
+  tracing:
+    sampling:
+      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
+    propagation:
+      consume: B3
+      produce: B3_MULTI
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
 
 # FeignClient Log 설정
 logging:
