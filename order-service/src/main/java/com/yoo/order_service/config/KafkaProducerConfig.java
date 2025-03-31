@@ -27,12 +27,9 @@ public class KafkaProducerConfig {
 
     @Bean
     public ProducerFactory<String, String> producerFactory(){
-        String kafkaUrl = env.getProperty("kafka.url","127.0.0.1:9092");
-        log.info("---------------------");
-        log.info("kafkaUrl :: {}", kafkaUrl);
-        log.info("---------------------");
+        String kafkaUrl = env.getProperty("kafka.url");
         Map<String, Object> properties = new HashMap<>();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaUrl);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
@@ -40,7 +37,8 @@ public class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate(){
-        return new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, String> kafkaTemplate() {
+        KafkaTemplate<String, String> template = new KafkaTemplate<>(producerFactory());
+        return template;
     }
 }

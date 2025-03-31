@@ -33,9 +33,9 @@ public class OrderServiceImpl implements OrderService {
 
         /* send this order kafka */
         // ✅ topic명은 consumer에서 소모할 topic과 일치 해야함
-        //kafkaProducer.send("example-catalog-topic", orderDto);
+        kafkaProducer.send("example-catalog-topic", orderDto);
         // Kafka Connect Sink 전송 ( DB - 저장  )
-        kafkaOrderProducer.send("orders", orderDto);
+        //kafkaOrderProducer.send("orders", orderDto);
 
         return orderDto;
     }
