@@ -28,7 +28,7 @@ services:
     networks:
       - micro-service-network
     environment:
-      - "spring.cloud.config.uri=http://config-service:8888"
+      - "spring.config.import=http://config-service:8888"
       - "spring.rabbitmq.host=rabbitmq"
       - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
     depends_on:
@@ -44,7 +44,7 @@ services:
       - micro-service-network
     environment:
       - "spring.profiles.active=prod"
-      - "spring.cloud.config.uri=http://config-service:8888"
+      - "spring.config.import=http://config-service:8888"
       - "spring.rabbitmq.host=rabbitmq"
       - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
       - "management.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans"
@@ -58,7 +58,7 @@ services:
     networks:
       - micro-service-network
     environment:
-      - "spring.cloud.config.uri=http://config-service:8888"
+      - "spring.config.import=http://config-service:8888"
       - "spring.rabbitmq.host=rabbitmq"
       - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
       - "spring.datasource.url=jdbc:mariadb://mariadb:3306/mydb"
@@ -113,6 +113,6 @@ services:
 networks:
   micro-service-network:
     #driver: bridge
-    # ✅ "docker network create micro-service-network" 명령어를 통해 network를 생성
+    # ✅ "docker network create --driver bridge --attachable micro-service-network" 명령어를 통해 network를 생성
     #     - 서로 다른 docker-compose.yml을 연결하여 사용하기 위함
     external: true  # 이미 생성된 네트워크 사용

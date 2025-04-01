@@ -1,0 +1,47 @@
+services:
+  user-service:
+    build:
+      context: ../user-service
+    container_name: user-service
+    networks:
+      - micro-service-network
+    environment:
+      - "spring.profiles.active=prod"
+      - "spring.config.import=http://config-service:8888"
+      - "spring.rabbitmq.host=rabbitmq"
+      - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+      - "management.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans"
+
+  order-service:
+    build:
+      context: ../order-service
+    container_name: order-service
+    networks:
+      - micro-service-network
+    environment:
+      - "spring.config.import=http://config-service:8888"
+      - "spring.rabbitmq.host=rabbitmq"
+      - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+      - "spring.datasource.url=jdbc:mariadb://mariadb:3306/mydb"
+      - "management.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans"
+      # ✅ 9092가 아닌 내부 포트 사용
+      - "kafka.url=kafka:19092"
+
+  catalog-service:
+    build:
+      context: ../catalog-service
+    container_name: catalog-service
+    networks:
+      - micro-service-network
+    environment:
+      - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
+      - "management.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans"
+      # ✅ 9092가 아닌 내부 포트 사용
+      - "kafka.url=kafka:19092"
+
+networks:
+  micro-service-network:
+    #driver: bridge
+    # ✅ "docker network create micro-service-network" 명령어를 통해 network를 생성
+    #     - 서로 다른 docker-compose.yml을 연결하여 사용하기 위함
+    external: true  # 이미 생성된 네트워크 사용
