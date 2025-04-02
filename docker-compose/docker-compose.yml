@@ -28,7 +28,7 @@ services:
     networks:
       - micro-service-network
     environment:
-      - "spring.config.import=http://config-service:8888"
+      - "spring.config.import=optional:configserver:http://config-service:8888"
       - "spring.rabbitmq.host=rabbitmq"
       - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
     depends_on:
@@ -44,7 +44,9 @@ services:
       - micro-service-network
     environment:
       - "spring.profiles.active=prod"
-      - "spring.config.import=http://config-service:8888"
+      # ✅삽질 해결 : application.yml에 적용한 방식 그대로 적용 필요
+      - #          - compose depends_on 만으로는 순차적으로 켜지지 않음 기동 후 "busrefresh" 혹은 "refresh" 또는 기동 순서를 변경 하는 등 작업 필요
+      - "spring.config.import=optional:configserver:http://config-service:8888"
       - "spring.rabbitmq.host=rabbitmq"
       - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
       - "management.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans"
@@ -58,7 +60,7 @@ services:
     networks:
       - micro-service-network
     environment:
-      - "spring.config.import=http://config-service:8888"
+      - "spring.config.import=optional:configserver:http://config-service:8888"
       - "spring.rabbitmq.host=rabbitmq"
       - "eureka.client.serviceUrl.defaultZone=http://discover-service:8761/eureka/"
       - "spring.datasource.url=jdbc:mariadb://mariadb:3306/mydb"
