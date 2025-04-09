@@ -59,10 +59,11 @@ public class EcoomerceApplication {
 ## 4 ) Discovery Client(Eureka Client) 설정 방법
 [참고](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/eureka-client)
 
-## 5 ) 다중 Discover Service 구축 방법
+## 5 ) Discover Service 이중화
 
 ### 5 - 1 ) Discover Service -  application.yml
 - `serviceUrl.defaultZone`를 통해 하위 서버들은 이어져 있게 설정 필요
+  - `defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka`
 ```yaml
 server:
   port: 8761
@@ -76,6 +77,8 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka
 
 ---
 spring:
@@ -89,12 +92,9 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone:
-        - http://localhost:8761/eureka/
-        - http://localhost:8763/eureka/
+      defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-
 
 ---
 spring:
@@ -108,11 +108,10 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone:
-        - http://localhost:8761/eureka/
-        - http://localhost:8762/eureka/
+      defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
 ```
 - 서버 기동
 ```shell
@@ -121,5 +120,8 @@ eureka:
 ```
 - Discover Service 이중화를 통해 하나의 Discover 서버가 죽더라도 대응이 가능하다.
   - **가용성 증가**
-### 5 - 1 ) Discovery Client 적용 
+### 5 - 2 ) Discovery Client 적용 
+```yaml
+
+```
 
