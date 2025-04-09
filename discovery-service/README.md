@@ -58,3 +58,68 @@ public class EcoomerceApplication {
 
 ## 4 ) Discovery Client(Eureka Client) 설정 방법
 [참고](https://github.com/edel1212/Micro-Service-Architecture-Study/tree/main/eureka-client)
+
+## 5 ) 다중 Discover Service 구축 방법
+
+### 5 - 1 ) Discover Service -  application.yml
+- `serviceUrl.defaultZone`를 통해 하위 서버들은 이어져 있게 설정 필요
+```yaml
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discoveryservice
+
+# ℹ️ eurek 설정 - Discovery Server 이기에 자기 자신을 등록할 필요가 없기에 false 처리 ( 기본 값 : true )
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: eureka1
+
+server:
+  port: 8762
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone:
+        - http://localhost:8761/eureka/
+        - http://localhost:8763/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+
+---
+spring:
+  config:
+    activate:
+      on-profile: eureka2
+
+server:
+  port: 8763
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone:
+        - http://localhost:8761/eureka/
+        - http://localhost:8762/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+```
+- 서버 기동
+```shell
+# 서버 기동 지정 포트 (8085)
+./gradlew bootRun --args='--spring.profiles.active=eureka1'
+```
+- Discover Service 이중화를 통해 하나의 Discover 서버가 죽더라도 대응이 가능하다.
+  - **가용성 증가**
+### 5 - 1 ) Discovery Client 적용 
+
