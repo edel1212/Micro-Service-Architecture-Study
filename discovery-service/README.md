@@ -63,7 +63,9 @@ public class EcoomerceApplication {
 
 ### 5 - 1 ) Discover Service -  application.yml
 - `serviceUrl.defaultZone`를 통해 하위 서버들은 이어져 있게 설정 필요
-  - `defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka`
+  - Eureka 클러스터를 구성할 땐 반드시 localhost 대신 실제 IP를 사용해야 함 다만 현제는 불가능 하기에 테스트로 진행
+    - 아래의 설정 파일로 기동 시 **서로를 인식 하지만 Replica는 되지 않음**
+    - `defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka`
 ```yaml
 server:
   port: 8761
@@ -121,7 +123,30 @@ eureka:
 - Discover Service 이중화를 통해 하나의 Discover 서버가 죽더라도 대응이 가능하다.
   - **가용성 증가**
 ### 5 - 2 ) Discovery Client 적용 
+- 사용 가능한 Discovery Service들 등록
 ```yaml
+server:
+  port: 7876
 
+spring:
+  application:
+    name: discover-client
+
+eureka:
+  # Eureka와 관련된 설정을 정의합니다.
+  client:
+    # 현재 애플리케이션을 Eureka 서버에 등록할지 여부를 설정합니다.
+    register-with-eureka: true
+    # Eureka 서버에서 서비스 정보를 가져올지 여부를 설정합니다.
+    fetch-registry: true
+    # Eureka 서버의 URL을 설정합니다.
+    service-url:
+      # Eureka 서버의 기본 주소를 설정합니다.
+      defaultZone: http://localhost:8761/eureka, http://localhost:8761/eureka, http://localhost:8763/eureka
+
+  # HeaderBeat 주기 주정
+  instance:
+    lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
+    lease-expiration-duration-in-seconds: 10 # Heartbeat 없을 때 제거까지 걸리는 시간 (기본값: 90초)
 ```
 
