@@ -5,9 +5,31 @@ services:
     ports:
       - "9411:9411"
     environment:
-      - STORAGE_TYPE=mem
+      # ✅ DB 사용을 위함
+      #- STORAGE_TYPE=mem
+      - STORAGE_TYPE=mysql
+      - MYSQL_DB=zipkin
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+      - MYSQL_HOST=mysql
+      - MYSQL_TCP_PORT=3307  # ✅ 포트 지정 추가
+    depends_on:
+      - mysql
     networks:
       - micro-service-network
+
+  mysql:
+    image: mysql
+    command: --port=3307  # ✅ 내부 포트를 3307로 지정
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: zipkin
+      MYSQL_USER: zipkin
+      MYSQL_PASSWORD: zipkin
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3307"
 
 networks:
   micro-service-network:

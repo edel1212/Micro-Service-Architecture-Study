@@ -89,3 +89,52 @@ management:
   - CircuitBreakerConfig 설정 시 **요청이 2초 이상 걸리면 자동으로 타임아웃 발생** 설정
 - 3 . Order-Service 내 요청을 받을 시 랜덤하게 5초 지연하게 끔 설정 하여 애러 발생
   - CircuitBreaker 정상 작동 확인하기 위함
+
+
+## 3 ) Zipkin Server - DB 사용
+- 중요 포인트는 볼륨 설정을 통해 사용에 필요한 table을 생성해 주는 것이다.
+  - `- ./initdb.d:/docker-entrypoint-initdb.d`
+
+### 3 - 1 ) initdb.d.sql
+> git hub을 통해 확인
+
+### 3 - 2 ) docker compose
+```yaml
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    environment:
+      # ✅ DB 사용을 위함
+      #- STORAGE_TYPE=mem
+      - STORAGE_TYPE=mysql
+      - MYSQL_DB=zipkin
+      - MYSQL_USER=zipkin
+      - MYSQL_PASS=zipkin
+      - MYSQL_HOST=mysql
+      - MYSQL_TCP_PORT=3307  # ✅ 포트 지정 추가
+    depends_on:
+      - mysql
+    networks:
+      - micro-service-network
+
+  mysql:
+    image: mysql
+    command: --port=3307  # ✅ 내부 포트를 3307로 지정
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: zipkin
+      MYSQL_USER: zipkin
+      MYSQL_PASSWORD: zipkin
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3307"
+
+networks:
+  micro-service-network:
+    #driver: bridge
+    external: true  # 이미 생성된 네트워크 사용	
+```
