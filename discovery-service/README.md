@@ -61,11 +61,15 @@ public class EcoomerceApplication {
 
 ## 5 ) Discover Service 이중화
 
-### 5 - 1 ) Discover Service -  application.yml
+### 5 - 1 ) 설정
+- Discover Service 이중화를 통해 하나의 Discover 서버가 죽더라도 대응이 가능 -> **가용성 증가**
 - `serviceUrl.defaultZone`를 통해 하위 서버들은 이어져 있게 설정 필요
-  - Eureka 클러스터를 구성할 땐 반드시 localhost 대신 실제 IP를 사용해야 함 다만 현제는 불가능 하기에 테스트로 진행
-    - 아래의 설정 파일로 기동 시 **서로를 인식 하지만 Replica는 되지 않음**
-    - `defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka`
+  - ex) `defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka`
+-  `instance.hostname`?
+  - Eureka 서버에 등록되는 자신 정보 중 하나로, 클라이언트나 대시보드가 이 값을 통해 인스턴스를 식별할 수 있음
+  - prefer-ip-address: true 추가 시 **hostname 대신 IP가 표시**됨
+
+#### 5 - 1 - A ) application.yml [ 일반 사용 설정 ]
 ```yaml
 server:
   port: 8761
@@ -79,14 +83,13 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka
 
 ---
+# ✅ Docker를 사용한 테스트 진행
 spring:
   config:
     activate:
-      on-profile: eureka1
+      on-profile: eureka2
 
 server:
   port: 8762
@@ -94,15 +97,15 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka
+      defaultZone: http://localhost:8763/eureka
   instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    hostname: localhost
 
 ---
 spring:
   config:
     activate:
-      on-profile: eureka2
+      on-profile: eureka3
 
 server:
   port: 8763
@@ -110,18 +113,62 @@ server:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka
+      defaultZone: http://localhost:8762/eureka
   instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    hostname: localhost
+```
 
+#### 5 - 1 - B ) application.yml [ Docker 사용 설정 ]
+![img_1.png](img_1.png)
+- `hostname`가 의미있게 적용되는 것을 확인 가능
+```yaml
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discoveryservice
+
+# ℹ️ eurek 설정 - Discovery Server 이기에 자기 자신을 등록할 필요가 없기에 false 처리 ( 기본 값 : true )
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+---
+# ✅ Docker를 사용한 테스트 진행
+spring:
+  config:
+    activate:
+      on-profile: eureka2
+
+server:
+  port: 8762
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka2:8763/eureka
+  instance:
+    hostname: eureka2.local
+
+---
+spring:
+  config:
+    activate:
+      on-profile: eureka3
+
+server:
+  port: 8763
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka3:8762/eureka
+  instance:
+    hostname: eureka3.local
 ```
-- 서버 기동
-```shell
-# 서버 기동 지정 포트 (8085)
-./gradlew bootRun --args='--spring.profiles.active=eureka1'
-```
-- Discover Service 이중화를 통해 하나의 Discover 서버가 죽더라도 대응이 가능하다.
-  - **가용성 증가**
+
 ### 5 - 2 ) Discovery Client 적용 
 - 사용 가능한 Discovery Service들 등록
 ```yaml
@@ -133,16 +180,12 @@ spring:
     name: discover-client
 
 eureka:
-  # Eureka와 관련된 설정을 정의합니다.
   client:
-    # 현재 애플리케이션을 Eureka 서버에 등록할지 여부를 설정합니다.
     register-with-eureka: true
-    # Eureka 서버에서 서비스 정보를 가져올지 여부를 설정합니다.
     fetch-registry: true
-    # Eureka 서버의 URL을 설정합니다.
     service-url:
-      # Eureka 서버의 기본 주소를 설정합니다.
-      defaultZone: http://localhost:8761/eureka, http://localhost:8761/eureka, http://localhost:8763/eureka
+      # ✅ 연결한 Discovery Service URI 지정
+      defaultZone: http://localhost:8761/eureka, http://localhost:8762/eureka, http://localhost:8763/eureka
 
   # HeaderBeat 주기 주정
   instance:
