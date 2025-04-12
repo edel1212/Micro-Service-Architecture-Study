@@ -22,6 +22,11 @@ public class FilterConfig {
                             // gateway에 해당 path 요청이 들어올 경우
                             -> r.path("/first-service/**")
                             // 필터 사용
+                            /**
+                             * ✅ gateway를 통해 호출 될 경우 아래와 같이 header 값 추가가 가능
+                             *    - 호출 대상이 되는 서버에서 특정 header 값을 강제하여 gateway만을 통해 들어오게 끔 설정도 가능
+                             *       - 앞단 gateway를 사용했을 당시 개발자 도구에도 header 값을 볼 수 없지만.. 사실상 외부 접근을 막고 싶은거면 망분리가 잘 되어 있다면 크게 활용 도는 떨어짐
+                             * */
                             .filters( f -> f.addRequestHeader("first-request", "first-request-header")
                                             .addResponseHeader("first-response", "first-response-header")
                                     .filter(customFilter.apply(new Object())))

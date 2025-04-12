@@ -14,29 +14,20 @@
 - IP 허용 목록으로 접근 제어
 
 ## 2 ) Spring Cloud Gateway
-- **비동기 처리** 지원
 ```properties
-ℹ️ Zuul Project는 Deprecated되어 더이상 사용이 불가능
-   - Spring에서도 Spring Cloud Gateway 사용을 권장👍
+# ℹ️ Zuul Project는 Deprecated되어 더 이상 사용 불가능
+#   - 따라서 Spring Cloud Gateway 사용을 권장 (Spring 공식에서도 권장 함)👍
 ```
+- ✅ Spring Cloud Gateway는 **비동기**, 논블로킹 방식으로 동작하는 API Gateway를 제공
+  - **비동기 처리** 지원
+  - 이는 Netty 기반의 비동기 웹 서버를 사용하여 높은 성능과 확장성을 제공함
+- gateway를 통해 호출 될 경우 강제로 header 값 추가가 가능
+  - 라우팅 대상 서버에서 특정 header 를 강제하는 방식을 활용해서 차단 가능하다.
+    - 단) 망분리가 잘되어있다면 크게 의미가 있지 않음
 
-### 2 - 1 ) 설정 - application.yml 사용
+## 3 ) 설정 
 
-#### dependencies
-```properties
-# ✅ Spring Cloud Gateway는 비동기, 논블로킹 방식으로 동작하는 API Gateway를 제공
-#    - 이는 Netty 기반의 비동기 웹 서버를 사용하여 높은 성능과 확장성을 제공함
-```
-- 😅 살질... 
-  - `gateway-mvc`를 사용해서 적용하면 gateway-route가 정상 작동하지 않음 그냥 `gateway`를 사용해야함
-  - 이유
-    - spring-cloud-starter-gateway는 **Reactive 환경(WebFlux)을 기본**으로 하며, 대부분의 기능은 이 환경에서만 완전하게 동작
-      - 특별한 이유가 없는 한 **Reactive 기반**의 Spring Cloud Gateway를 **사용하는 것이 권장**
-    - `spring-cloud-starter-gateway-mvc`는 WebFlux 기반의 Spring Cloud Gateway의 설정 방식을 지원하지 않음
-      - **application.yml에 작성한 설정이 무시됨**
-      - Spring MVC의 @RestController와 @RequestMapping을 사용하여 **라우팅을 구성해야 함**
-        - 대상 서비스로 **요청을 포워딩하는 방식**
-    - spring-cloud-starter-gateway는 비동기, 논블로킹 방식의 고성능 API Gateway를 제공
+### 3 - 1 ) dependencies
 ```groovy
 dependencies {
     // ❌ implementation 'org.springframework.cloud:spring-cloud-starter-gateway-mvc'
@@ -45,17 +36,28 @@ dependencies {
 }
 ```
 
-#### application.yml
+#### 😅 살질.. 
+- `gateway-mvc`를 사용해서 적용하면 gateway-route가 정상 작동하지 않음 그냥 `gateway`를 사용해야함
+  - 이유
+    - spring-cloud-starter-gateway는 **Reactive 환경(WebFlux)을 기본**으로 하며, 대부분의 기능은 이 환경에서만 완전하게 동작
+      - 특별한 이유가 없는 한 **Reactive 기반**의 Spring Cloud Gateway를 **사용하는 것이 권장**
+    - `spring-cloud-starter-gateway-mvc`는 WebFlux 기반의 Spring Cloud Gateway의 설정 방식을 지원하지 않음
+      - **application.yml에 작성한 설정이 무시됨**
+      - Spring MVC의 @RestController와 @RequestMapping을 사용하여 **라우팅을 구성해야 함**
+        - 대상 서비스로 **요청을 포워딩하는 방식**
+    - spring-cloud-starter-gateway는 비동기, 논블로킹 방식의 고성능 API Gateway를 제공
+
+### 3 - 2 )  application.yml 방법 
 ```properties
 # ✨ Gate-way 와 연결된 Service의  predicates의 Path를 같게 맞춰줘야 Routing이 가능하다
 ```
-- 핵심 설정은 `cloud` 부분 설정
-- id : 대상 route id 부여
-  - route 대상 service name 과 달라도 **문제가 없음**  
+- 핵심 설정은 `spring.cloud.gateway` 하위 설정
+- id : **"-"를 사용 배열 방식 등록 함** 대상의 `route id(식별할 Id)` 지정
+  - `route id`는 대상 application service name 과 달라도 **문제가 없음**  
 - uri :  요청을 넘길 service uri
-  - 연결에 필요한 **URI**를 통해 매칭 **URL ❌**
-- predicates : gateway가 전달 route 할 지정 path
-- filters : gateway에서 추가 처리 할 필터 내용 
+  - 연결에 필요한 **URI**를 통해 매칭  ( 주의 사항 : ☠️  **URL❌** -> **URI🙆** )
+- predicates : gateway가 전달 route 할 path 방식 설정
+- filters : gateway에서 필터링할 방법 지정
 ```yaml
 server:
   port: 8000
@@ -88,13 +90,13 @@ eureka:
     defaultZone: http://localhost:8761/eureka/
 ```
 
-### 2 - 1 ) 설정 - @Configuration 사용
+### 3 - 3 ) Java 설정 방식 - @Configuration 사용
 ```properties
 # ✅ dependencies 설정은 동일
 #    - 기존의 설정은 동일하나 application 설정 부분을 Java로 변경
 ```
 #### application.yml
-- port 및 eureka 설정 부분 skip 
+- port 및 eureka 설정 부분은 사용하지 않으므로 삭제 또는 주석 처리 진행
 ```yaml
 spring:
 #  cloud:
@@ -137,7 +139,7 @@ public class FilterConfig {
 }
 ```
 
-## 3 ) Gateway CustomFilter
+## 4 ) Gateway CustomFilter
 ```properties
 # ℹ️ 해당 필터는 원하는 라우터 정보에 "개벌적"으로 등록해 줘야함
 ```
@@ -157,8 +159,8 @@ public class FilterConfig {
 - 체인형식을 **return 전**에는 PreFilter 로직 작성할 수 있고 **return 할때**는 PostFilter 로직을 작성 할 수 있다.
   - return 시 비동기 통신을 하기에 **Mono or Flux**를 사용해 반환
 
-### CustomFilter Class
-- Filter에서 사용될 name을 변경하기 위해서는 `name()` Method를 Override 구현해 줘야한다.
+### 4 - 1 ) CustomFilter Class
+- Filter에서 사용될 name을 변경을 원할 경우 `public String name()`를 Override 구현 필요
   - Default Name은 **해당 설정 Class의 이름을 따름**
 ```java
 @Log4j2
@@ -187,7 +189,7 @@ public class CustomFilter extends AbstractGatewayFilterFactory{
 }
 ```
 
-### 3 - 1 ) Application.yml - 설정 방법
+### 4 - 2 ) Application.yml - 설정 방법
 - 이전 설정과 전부 동일 **filters** 부분 내 Custom Class Name만 추가 
   - Default Custom Class Name은 **설정한 Class Name 과 같음**
 ```yaml
@@ -213,11 +215,10 @@ spring:
             - CustomFilter
 ```
 
-### 3 - 2 ) ConfigFilter Class - 설정 방법
+### 4 - 3 ) ConfigFilter Class - 설정 방법
 - CustomFilter를 의존성 주입 후 사용하면 된다.
 - apply() 메서드의 매개변수로 `new Object()`가 아닌 실제 필요한 구성 객체를 전달하고 싶다면 해당 Custom Filter class 내 제네릭 지정 생성자 등록 필요
 
-#### FilterConfig Class
 ```java
 @RequiredArgsConstructor
 @Configuration
@@ -238,12 +239,13 @@ public class FilterConfig {
     }
 }
 ```
-## 4 ) Gateway GlobalFilter
+
+## 5 ) Gateway GlobalFilter 적용
 ```properties
 # ℹ️ Custom Filter와 비교해서 "가장 먼저" 시작하고 "가장 마지막"에 종료한다.
 ```
 
-### GlobalFilter Class
+### 5 - 1 ) GlobalFilter Class
 - 기존 CustomFilter와 구조는 크게 **다르지 않음**
 - `apply(Object object)` -> `apply(GlobalFilter.Config config)`가 다름
   - 실제 **필요한 구성 객체를 전달**하는 방법을 사용
@@ -285,7 +287,7 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
 }
 ```
 
-### 4 - 0 ) default-filters 와 global-filter
+### 5 - 0 ) default-filters 와 global-filter 비교
 | 특성                     | `default-filters`                        | `GlobalFilter`                            |
 |------------------------|-----------------------------------------|------------------------------------------|
 | **설정 위치**             | `application.yml` 또는 `application.properties`에서 설정 | Java 코드에서 `@Bean`으로 설정           |
@@ -294,7 +296,7 @@ public class GlobalFilter extends AbstractGatewayFilterFactory<GlobalFilter.Conf
 | **우선순위**               | 우선순위를 명시적으로 설정할 수 없음    | `getOrder()` 메서드를 통해 우선순위 설정 가능 |
 
 
-### 4 - 1 ) Application.yml - 설정 방법
+### 5 - 1 ) Application.yml - 설정 방법
 - `default-filters`를 통해 지정
   - `args`를 사용하여 필요 구성 객체 내 필드 값 주입
 ```yaml
@@ -316,7 +318,7 @@ spring:
             - CustomFilter
 ```
 
-### 4 - 2 ) ConfigFilter Class - 설정 방법
+### 5 - 2 ) ConfigFilter Class - 설정 방법
 - `GlobalFilter`를 사용해 지정
   - default-filters와 순서가 다르게 진행 CustomFilter -> GlobalFilter 순서로 진행
   - 변경이 필요할 경우 순서를 바꿔서 진행하도록 함
@@ -364,15 +366,15 @@ public class FilterConfig {
 }
 ```
 
-## 5 ) OrderedGatewayFilter
+## 6 ) OrderedGatewayFilter - 순서 지정 필터
 - GatewayFilter는 Interface이며 해당 OrderedGatewayFilter는 해당 **Interface를 구현한 class**다
   - 생성자 메서드 내 요구 파타미터 `new OrderedGatewayFilter( GlobalFilter, int )`
     - 첫번째 인자 값 구현 메서드 : `Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain);`
     - 두번째 인자 값 : 인트
 - 생성자 마지막 메서드 마지막 인자의 값에 따라 **Filter 순서를 지정** 할 수 있다.
-  - default-filter 보다 먼저 작용하게 할 수 도 있다
+  - global-filter 보다도 먼저 작동 하게 설정 가능하다
 
-### OrderedGatewayFilter Class
+### 6 - 1 )  OrderedGatewayFilter Class
 ```java
 @Log4j2
 @Component
@@ -412,7 +414,7 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
 }
 ```
 
-### application.yml
+### 6 - 2 ) application.yml 사용 방식
 - args를 사용해서 값을 전달 하기 위해서는 `name:`를 **꼭 사용해서 Bean 이름을 지정**해 줘야함
 ```yaml
 spring:
@@ -433,7 +435,7 @@ spring:
                 postLogger: true
 ```
 
-## 6 ) 필터 활용 - cookie 및 middle path 제외 
+## 7 ) 필터 활용 - cookie 및 middle path 제외 
 ```properties
 # ✅ Gateway에서 다른 Service를 route를 하기 위해서 필요한 중간 Path를 사용해야 하지만 filter 중 "RewritePath" 를 사용하면 제외가 가능하다. 
 #    - "변경 전" 설정 일부
@@ -442,7 +444,7 @@ spring:
 #          predicates:
 #            - Path=/user-service/**
 ```
-### gateway - application.yml
+### 7 - 1 ) [gateway service]  application.yml 적용
 - 흐름
   - Gateway에 지정된 Path 와 http Method 요청이 들어온 온다.
     - **predicates 내** Path 확인
@@ -470,12 +472,11 @@ spring:
             - RewritePath=/user-service/(?<segment>.*), /$\{segment}
 ```
 
-### User Application Controller
+### 7 - 2 ) [ route target service ] -  User Application Controller
 - gateway에서 middle path를 제외하고 route 하기에 `@RequestMapping`가 **불필요**
 
 ```java
 import org.springframework.web.bind.annotation.RequestMapping;
-
  
 // ❌ 불필요 -> @RequestMapping("/user-service")
 @RestController
@@ -486,7 +487,8 @@ public class UserController {
   }
 }
 ```
-## 7 ) Eureka 연동 - Load Balancing
+
+## 8 ) Eureka 연동 - Load Balancing
 ```yaml
 # ℹ️ 기본적으로 Eureka Discover Server가 기동되어 있어야 함
 #    - Gateway server 및 rote 대상 Server들은 Eureka Client 사용 설정이 되어 있어야 한다.
@@ -495,7 +497,7 @@ public class UserController {
 - Gateway Server 자체적으로 로드 밸런싱을 지원하며, 같은 이름의 Service가 여러개의 포트로 연결 되었을 경우 **라운드 로빈 방식으로 분산**한다.
   - 무중단 배포를 원할 경우 **heartbeat 주기를 짧게** 잡아 **Discovery Service에서 제외** 시켜줘야 한다.
 
-### Sample Server A - application.yml
+### 8 - 1 ) [ route target services ] - application.yml
 - Random port 적용
   - 그에 따른 Discovery Service 적용을 위함 instance-id 변경
 ```yaml
@@ -517,7 +519,7 @@ eureka:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 ```
 
-### Gateway Server - application.yml
+###  8 - 2 ) [ gateway server ] - application.yml
 - uri **지정 방식이 변경** 된다.
   - 기존 http://ip:port -> lb://**대상서버의 application name**  
 ```yaml
