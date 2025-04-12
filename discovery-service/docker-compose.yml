@@ -1,0 +1,22 @@
+services:
+  eureka1:
+    build: .
+    container_name: eureka2
+    ports:
+      - "8762:8762"
+    command: java -jar app.jar --spring.profiles.active=eureka2
+    networks:
+      - discovery-network
+
+  eureka2:
+    build: .
+    container_name: eureka3
+    ports:
+      - "8763:8763"
+    command: java -jar app.jar --spring.profiles.active=eureka3
+    networks:
+      - discovery-network
+
+networks:
+  discovery-network:
+    driver: bridge
