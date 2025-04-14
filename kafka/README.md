@@ -35,7 +35,7 @@ kafka-console-producer.sh --bootstrap-server [ Kafka Broker 도메인 ] --topic 
 # kafka-console-producer.sh --bootstrap-server 127.0.01:9092 --topic test
 ```
 
-## 2 ) Kafka Connect
+## 2 ) Kafka Connect 란 ?
 > 카프카를 사용하여 외부 시스템과 데이터를 주고 받기 위한 오픈소스 프레임워
 - 데이터베이스, 키-값 저장소, 검색 인덱스 및 파일 시스템 간의 **간단한 데이터 통합을 위한 중앙 집중식 데이터 허브 역할** 한다.
   -  Kafka와 다른 데이터 시스템 간에 데이터를 스트리밍하고 Kafka 안팎으로 대규모 데이터 셋을 이동시켜주는 커넥터를 빠르게 생성 가능

@@ -1,4 +1,6 @@
 # Feign
+
+## 1 ) Feign 란?
 ```properties
 # ✅ RestTemplate 보다 좀 더 간결하게 코드양을 줄일 수 있는 장점이 있다.
 #    - HTTP 기반의 RESTful 서비스를 호출하는 클라이언트 라이브러리
@@ -9,7 +11,8 @@
 #    - EurekaClient를 사용하여 요청할 경우 라우팅 시 Gateway를 사용하지 않고 바로 통신한다.  
 ```
 
-## 1 ) build.gradle
+## 2 ) 설정 방법
+### 2 - 1 ) build.gradle
 - Eureka와의 통합은 선택 사항이며, Eureka 없이도 OpenFeign을 사용할 수 있다
 ```groovy
 dependencies {
@@ -18,7 +21,7 @@ dependencies {
 }
 ```
 
-## 2 ) @FeignClient
+### 2 - 2 ) 호출 Interface
 - `@FeignClient("도메인 주소")`를 사용해 연계하려는 대상을 지정
   - "Eureka Server에 지정된 주소"를 사용할 경우 Discover Server에서 해당 도메인을 찾아 진행
   - 일반적인 "ip:port" 형식으로도 접근 가능하다.
@@ -36,7 +39,7 @@ public interface OrderServiceClient {
 }
 ```
 
-## 3 ) BusinessLogic 사용
+## 3 ) BusinessLogic 내 Feign 사용
 - "2 )"에서 생성한 Interface를 주입하여 사용
 ```java
 @RequiredArgsConstructor

@@ -28,7 +28,7 @@ services:
     restart: always
 ```
 
-## 2 ) Spring-Boot using Zipkin
+## 2 ) Spring-Boot Connect Zipkin
 ```yaml
 # ✅ 요청의 흐름 파악 대상의 Service에는 모두 적용해줘야한다.  
 ```

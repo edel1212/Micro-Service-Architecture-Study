@@ -63,7 +63,7 @@ root/
 ### 2 - 2 ) eureka 등록 관련
 - 💬 이슈 내용 : eureka 등록 시 container로 지정했지만 계속해서 **등록 요청을 localhost로 보냈던 이슈**
 - 😩 예상 원인 : 처음에는 application 분리로 인한 이슈로 예상 했으나, 분리를 해도 크게 상관 없다. (개발 방식에만 맞게 진행)
-  - **( 지정 target-?.yml -> target.yml -> application.yml)** 순서로 적용 하기 떄문 **override 함**
+  - **( application.yml -> application-dev.yml -> user-service.yml -> user-service-dev.yml )** 순서로 적용 하기 떄문 **override 함**
 - ✅ 원인 및 해결
   - **위치 지정**을 잘해주면 됨 ( ☠️ **"user-service" 내 Eureka 등록 시 삽질**)
     - `eureka.client.service-url.defaultZone : ${eureka-server-uri}/eureka` 형식이다. 개행 및 **suffix** 주의하자!

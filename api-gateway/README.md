@@ -13,7 +13,7 @@
 - 헤더, 쿼리 문자열 및 청구 변환
 - IP 허용 목록으로 접근 제어
 
-## 2 ) Spring Cloud Gateway
+## 2 ) Spring Cloud Gateway 란?
 ```properties
 # ℹ️ Zuul Project는 Deprecated되어 더 이상 사용 불가능
 #   - 따라서 Spring Cloud Gateway 사용을 권장 (Spring 공식에서도 권장 함)👍
@@ -25,7 +25,7 @@
   - 라우팅 대상 서버에서 특정 header 를 강제하는 방식을 활용해서 차단 가능하다.
     - 단) 망분리가 잘되어있다면 크게 의미가 있지 않음
 
-## 3 ) 설정 
+## 3 ) 설정 방법
 
 ### 3 - 1 ) dependencies
 ```groovy
@@ -37,15 +37,17 @@ dependencies {
 ```
 
 #### 😅 살질.. 
-- `gateway-mvc`를 사용해서 적용하면 gateway-route가 정상 작동하지 않음 그냥 `gateway`를 사용해야함
-  - 이유
-    - spring-cloud-starter-gateway는 **Reactive 환경(WebFlux)을 기본**으로 하며, 대부분의 기능은 이 환경에서만 완전하게 동작
-      - 특별한 이유가 없는 한 **Reactive 기반**의 Spring Cloud Gateway를 **사용하는 것이 권장**
-    - `spring-cloud-starter-gateway-mvc`는 WebFlux 기반의 Spring Cloud Gateway의 설정 방식을 지원하지 않음
-      - **application.yml에 작성한 설정이 무시됨**
-      - Spring MVC의 @RestController와 @RequestMapping을 사용하여 **라우팅을 구성해야 함**
-        - 대상 서비스로 **요청을 포워딩하는 방식**
+- 원인 
+  - `gateway-mvc` 적용 시 gateway-route가 정상 작동하지 않음
+  - spring-cloud-starter-gateway는 **Reactive 환경(WebFlux)을 기본**으로 하며, 대부분의 기능은 이 환경에서만 완전하게 동작함
+    - 특별한 이유가 없는 한 **Reactive 기반**의 Spring Cloud Gateway를 **사용하는 것이 권장**
+  - `gateway-mvc`는 WebFlux 기반의 Spring Cloud Gateway의 설정 방식을 **지원하지 않음**
+    - **application.yml에 작성한 설정이 무시됨**
+    - Spring MVC의 @RestController와 @RequestMapping을 사용하여 **라우팅을 구성해야 함**
+      - 대상 서비스로 **요청을 포워딩하는 방식**
     - spring-cloud-starter-gateway는 비동기, 논블로킹 방식의 고성능 API Gateway를 제공
+- 해결 방법
+  - `starter-gateway`사용
 
 ### 3 - 2 )  application.yml 방법 
 ```properties
@@ -240,7 +242,7 @@ public class FilterConfig {
 }
 ```
 
-## 5 ) Gateway GlobalFilter 적용
+## 5 ) Gateway GlobalFilter
 ```properties
 # ℹ️ Custom Filter와 비교해서 "가장 먼저" 시작하고 "가장 마지막"에 종료한다.
 ```
@@ -488,7 +490,7 @@ public class UserController {
 }
 ```
 
-## 8 ) Eureka 연동 - Load Balancing
+## 8 ) Load Balancing - Eureka 연동 
 ```yaml
 # ℹ️ 기본적으로 Eureka Discover Server가 기동되어 있어야 함
 #    - Gateway server 및 rote 대상 Server들은 Eureka Client 사용 설정이 되어 있어야 한다.
@@ -542,5 +544,4 @@ eureka:
     fetch-registry: true
   service-url:
     defaultZone: http://localhost:8761/eureka
-
 ```

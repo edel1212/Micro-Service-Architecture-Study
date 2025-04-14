@@ -42,7 +42,7 @@ order_service:
    url: http://ORDER-SERVICE/order-service/%s/orders  # @LoadBalance 사용 Eureka에서 찾아 라우팅
 ```
 
-## 2 ) 사용 코드
+## 2 ) 사용 예시 코드 - (user-service)
 
 ### 2 - 1 ) Collection 반환 시
 - `String.format` 사용해 url 내 Path 적용

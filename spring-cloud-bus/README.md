@@ -2,14 +2,13 @@
 
 ![img_1.png](img_1.png)
 
-
 ```yaml
 # ✅ Spring Config Server 와 Actuator 사용만으로 부족한 부분을 Message-Queuing을 통해 해결
 #    - Spring Config Server + Spring Cloud Bus를 합쳐 사용함으로 써 좀 더 MicoServie에 맞는 구조로 만듬
 #    - MessageQueuing에는 RabbitMQ를 사용
 ```
 
-## 1 ) AMQP( Advanced Message Queuing Protocol )
+## 1 ) AMQP( Advanced Message Queuing Protocol ) 란?
 - 메시지 지향 미들웨어를 위한 개방형 표준 응용계층 프로토콜
 - 메세지 지향, 큐잉, 라우팅 ( P2P, Publisher-Subscriber ), 신뢰성, 보안
 - RabbitMQ에서 사용
@@ -17,7 +16,7 @@
   - 메세지 전달 보장, 시스템 간 메세지 전달
   - 브로커, 소비자 중심
 
-## 2 ) 흐름
+## 2 ) 전체 흐름
 
 ![img_2.png](img_2.png)
 
@@ -109,7 +108,7 @@ management:
         include: busrefresh
 ```
 
-## 5 ) 흐름
+## 5 ) spring cloud bus 사용 흐름
 ```yaml
 # ✅ Spring Cloud Bus를 사용하지 않을 경우 Config Server의 정보가 업데이트 되어도 하위 서버에 정보가 적용되기 위해서는
 #    "서버 재기동" 혹은 "/actuator/refresh"를 통해서 설정 정보를 갱신해서 받오게 했어야 했다.

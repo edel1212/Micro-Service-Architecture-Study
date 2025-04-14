@@ -22,12 +22,12 @@
 | **Timeout 처리** | 특정 서비스의 응답이 **너무 오래 걸릴 경우 자동으로 요청을 중단** |
 
 
-## 1 ) Resilience4j
+## 1 ) Resilience4j 란?
 - Java 애플리케이션에서 마이크로서비스의 **회복력(Resilience)을 향상시키기 위해 사용**되는 경량 라이브러리
   - 가볍고 모듈화된 구조 (필요한 기능만 선택하여 사용 가능)
   - Spring Boot와 쉽게 통합 가능 (resilience4j-spring-boot 제공)
 
-## 2 ) 기본 설정으로 사용
+## 2 ) default 설정 사용 방법
 
 ### 2 - 1 ) build.gradle
 ```groovy
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
 }
 ```
-## 3 ) Resilience4j Config 
+## 3 ) Custom Resilience4j Config 사용 방법 
 - `Customizer`를 통해 모든 서킷 브레이커(CircuitBreaker) 에 동일한 설정이 적용됨
   - `private final CircuitBreakerFactory circuitBreakerFactory;`
 - ℹ️ Reactive 형식으로 진행하고 싶다면 `Customizer<ReactiveResilience4JCircuitBreakerFactory>`로 설정 필요
