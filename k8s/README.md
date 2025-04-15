@@ -38,3 +38,7 @@
 - Eureka(Discovery) Service -> Service
 - Spring  Cloud Gateway Service -> Service / Ingress
 - Spring Config Service -> ConfigMap / Secret
+
+
+- 지정 리소스를 생성하거나 존재할 경우 update 함
+  `kubectl apply -f configmap.yml`
