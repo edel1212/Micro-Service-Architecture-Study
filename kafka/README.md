@@ -1,5 +1,12 @@
 # Kafka
 - Docker Compose 사용하여 진행
+
+
+| 접근 주체        | 일반적인 리스너 이름                 | 설명                                                                      |
+|------------------|-----------------------------|-------------------------------------------------------------------------|
+| Kafka 브로커 간 통신 | `PLAINTEXT`, `INTERNAL`     | Kafka 클러스터 내부 브로커 간 통신에 사용                                              |
+ | Kafka 클라이언트  | `EXTERNAL`,`PLAINTEXT_HOST` | Kafka 클라이언트가 Kafka 브로커에 접속할 때 사용 (외부 접근 포함) PLAINTEXT_HOST(내부 외부 접근 가능) |
+
 ```yaml
 services:
   zookeeper:
