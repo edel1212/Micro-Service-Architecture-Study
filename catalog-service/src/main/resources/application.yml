@@ -1,9 +1,17 @@
 server:
-  port: 0
+  port: 8080
+
+topic:
+  name: my-catalog-topic
 
 spring:
   application:
     name: catalog-service
+  kafka:
+    consumer:
+      bootstrap-servers: ${BOOTSTRAP-SERVERS} # Kafka 클러스에 대한 초기 연결에 사용할 호스트 : 포트 목록
+      group-id: consumer_group01 # Group Id
+      auto-offset-reset: earliest
   h2:
     console:
       enabled: true
@@ -14,7 +22,9 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+    generate-ddl: true
     database: h2
+    defer-datasource-initialization: true
 
   datasource:
     driver-class-name: org.h2.Driver
@@ -22,36 +32,8 @@ spring:
     username: sa
     password:
 
-management:
-  # Zipkin 설정
-  tracing:
-    sampling:
-      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
-    propagation:
-      consume: B3
-      produce: B3_MULTI
-  zipkin:
-    tracing:
-      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
-  # Actuator 설정
-  endpoints:
-    web:
-      exposure:
-        # /actuator/** 로 사용할 기능 설정
-        include: refresh, health, beans, httpexchanges, busrefresh, info, metrics, prometheus
-
-eureka:
-  instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
-
 logging:
   level:
-    com.example.catalogservice: DEBUG
-
-kafka:
-  url: "127.0.0.1:9092"
+    com.yoo.catalog_service: DEBUG
+  pattern:
+    correlation: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'

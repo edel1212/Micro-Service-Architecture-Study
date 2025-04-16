@@ -26,7 +26,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, String> consumerFactory(){
 
-        String kafka = env.getProperty("kafka.url","127.0.0.1:9092");
+        String kafka = env.getProperty("spring.kafka.consumer.bootstrap-servers","127.0.0.1:9092");
 
         log.info("---------------------");
         log.info("kafka :: {}",kafka);

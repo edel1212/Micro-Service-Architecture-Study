@@ -27,7 +27,7 @@ public class KafkaProducerConfig {
 
     @Bean
     public ProducerFactory<String, String> producerFactory(){
-        String kafkaUrl = env.getProperty("kafka.url");
+        String kafkaUrl = env.getProperty("spring.kafka.producer.bootstrap-servers");
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaUrl);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
