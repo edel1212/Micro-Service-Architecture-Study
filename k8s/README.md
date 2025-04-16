@@ -38,3 +38,30 @@
 - Eureka(Discovery) Service -> Service
 - Spring  Cloud Gateway Service -> Service / Ingress
 - Spring Config Service -> ConfigMap / Secret
+
+
+## 기본 명령어
+
+- Kubernetes 노드 확인
+  - `kubeclt get node`
+- Kubernetes 지정 노드의 리소스 정보 확인
+  - `kubectl describe node docker-desktop`
+- 지정 리소스를 생성하거나 존재할 경우 update 함
+  `kubectl apply -f configmap.yml`
+- configmap 리소스 정보 확인
+  - `kubectl get configmap`
+
+## Deployment
+
+- 생성 방식
+  -  Label과 Selector를 통해 이루어짐 즉, 직접 참조하지 않고, 서로 “라벨로 연결”됩니다
+    - deployment :`template.metadata.labels.app = user-app`
+    - service : `selector.app =  user-app`
+```text
+[Deployment]
+    ↓ (생성)
+  [Pod] ← labels: app=user-app
+    ↑
+[Service]
+  selector: app=user-app
+```
