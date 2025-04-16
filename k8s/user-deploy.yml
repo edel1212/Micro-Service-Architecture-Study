@@ -53,7 +53,7 @@ spec:
 ---
 
 # ----------------------------------------
-# 🌐 Service: user-service
+# 🌐 Service: user-service [ 네트워크를 설정하는 기능 ]
 # - user-service Deployment에 외부 접근을 허용하기 위한 NodePort 서비스 정의
 # - 외부에서 NodeIP:30001으로 접근 가능
 # ----------------------------------------
@@ -69,4 +69,4 @@ spec:
     - protocol: TCP
       port: 60000                     # 클러스터 내부에서 사용하는 서비스 포트
       targetPort: 60000              # 컨테이너의 포트
-      nodePort: 30001                # 외부에서 접근할 수 있는 노드 포트
+      nodePort: 30001                # 외부에서 접근할 수 있는 노드 포트 [ 포트포워딩과 같은 개념 ]

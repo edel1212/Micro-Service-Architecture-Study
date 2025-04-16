@@ -46,15 +46,14 @@
   - `kubeclt get node`
 - Kubernetes 지정 노드의 리소스 정보 확인
   - `kubectl describe node docker-desktop`
-
-
-
-
-
 - 지정 리소스를 생성하거나 존재할 경우 update 함
   `kubectl apply -f configmap.yml`
 - configmap 리소스 정보 확인
   - `kubectl get configmap`
+- pod 확인
+  - `kubectl get pod`
+- pod 로그 확인
+  - `kubelctl log 대상`
 
 ## Deployment
 
@@ -70,3 +69,12 @@
 [Service]
   selector: app=user-app
 ```
+
+
+## 전체 흐름
+- configMap 기동
+- service 별 Deployment 작성
+  - service별 application.yml 수정
+- service별 image 생성
+- Deployment 내 image 지댓
+- `kubectl apply -f 대상`을 통해 리소스 생성
