@@ -1,84 +1,47 @@
 server:
-  port: 0
+  port: 60000
 
 spring:
-  application:
-    name: user-service
-
-  ## ☠️ 삽집 :: config-service에서 값을 받아오지 못했던 이슈
-  #            - 상황 ) config-service는 기동 되어있고 docker network로 연결 되어 있으며 user-service -> config-service 값을 받아옴
-  #              원인 ) config-service를 docker compose option 중 "depended-on"로 설정했지만 기동 후 완벽하게 서버가 기동되지 않을 때 요청을 하여 발생한 문제
-  #              해결 방법 ) "/actuator/refresh" 또는 "/actuator/busrefresh"를 사용하여 한번 더 로드 시켜 해결
-  profiles:
-    active: dev
-
-  # RabbitMQ Setting
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: admin
-    password: admin
-
-  # Config Server Setting
-  config:
-    import: optional:configserver:http://localhost:8888
   cloud:
     config:
-      name: user-service  # `user-service.yml`을 읽도록 설정
-
-  # h2 접근 설절
+      name: user-service
+  application:
+    name: user-service
   h2:
     console:
-      # H2 콘솔 활성화 여부 (기본값: false)
       enabled: true
       settings:
-        # 외부에서 H2 콘솔 접속을 허용할지 여부 (보안상 주의 필요)
         web-allow-others: true
-      # H2 콘솔 접속 URL 설정 (예: http://localhost:8080/h2-console)
       path: /h2-console
   jpa:
     hibernate:
-      ddl-auto: create  # 애플리케이션 실행 시 DB 초기화 방식
-    show-sql: true  # SQL 실행문 로깅
-
-# Eureka 설정
-eureka:
-  instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    # lease-renewal-interval-in-seconds: 5   # Heartbeat 주기 (기본값: 30초)
-    # lease-expiration-duration-in-seconds: 10 # Heartbeat가 중단되었을 때 인스턴스를 제거하는 시간 (기본값: 90초)
-
-  # Eureka client 설정 (Eureka 서버에 등록할지 여부)
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://127.0.0.1:8761/eureka
+      ddl-auto: update
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
 
 greeting:
-  message: This is Micro User Service!!
+  message: Welcome to the Simple E-commerce.
 
+logging:
+  level:
+    com.yoo.user_service: DEBUG
+  pattern:
+    correlation: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
 
 management:
-  # Actuator 설정
   endpoints:
     web:
       exposure:
-        # /actuator/** 로 사용할 기능 설정
-        include: refresh, health, beans, busrefresh, circuitbreakers, info, metrics, prometheus
+        include: refresh, health, beans, busrefresh, info, metrics, prometheus
 
-  # Zipkin 설정
-  tracing:
-    sampling:
-      probability: 1.0 # 샘플링할 비율 - 100% 샘플링 (모든 요청을 추적)
-    propagation:
-      consume: B3
-      produce: B3_MULTI
-  zipkin:
-    tracing:
-      endpoint: "http://localhost:9411/api/v2/spans" # Zipkin 서버 주소
+order-service-url: ${ORDER-SERVICE-URL}
 
-# FeignClient Log 설정
-logging:
-  level:
-    com.yoo.user_service.feignClient: DEBUG
+gateway:
+  ip: ${GATEWAY_IP}
+
+token:
+  expiration_time: ${TOKEN_EXPIRATION_TIME}
+  secret: ${TOKEN_SECRET}

@@ -1,0 +1,72 @@
+# ----------------------------------------
+# 🛠 Deployment: user-deploy
+# - user-service 컨테이너를 실행하는 Deployment 정의
+# - 환경 변수는 ConfigMap으로부터 주입
+# ----------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-deploy
+spec:
+  selector:
+    matchLabels:
+      app: user-app         # 이 레이블을 가진 Pod을 선택
+  replicas: 1                # Pod 수: 1개
+  template:
+    metadata:
+      labels:
+        app: user-app       # Pod에 부여될 레이블
+    spec:
+      containers:
+        - name: user-service
+          image: edowon0623/user-service:ssg_v1.1  # 배포할 컨테이너 이미지
+          imagePullPolicy: Always                  # 항상 이미지를 pull하여 최신 상태 유지
+          ports:
+            - containerPort: 60000                 # 컨테이너 내부에서 사용하는 포트
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 500m                            # 최소 CPU 리소스 요청 (0.5 Core)
+              memory: 1000Mi                       # 최소 메모리 리소스 요청 (1000 MiB)
+          env:                                     # 환경 변수 설정 (ConfigMap으로부터 주입)
+            - name: GATEWAY_IP
+              valueFrom:
+                configMapKeyRef:
+                  name: msa-k8s-configmap
+                  key: gateway_ip
+            - name: TOKEN_EXPIRATION_TIME
+              valueFrom:
+                configMapKeyRef:
+                  name: msa-k8s-configmap
+                  key: token_expiration_time
+            - name: TOKEN_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: msa-k8s-configmap
+                  key: token_secret
+            - name: ORDER-SERVICE-URL
+              valueFrom:
+                configMapKeyRef:
+                  name: msa-k8s-configmap
+                  key: order-service-url
+
+---
+
+# ----------------------------------------
+# 🌐 Service: user-service
+# - user-service Deployment에 외부 접근을 허용하기 위한 NodePort 서비스 정의
+# - 외부에서 NodeIP:30001으로 접근 가능
+# ----------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  type: NodePort                      # 외부에서 접근 가능한 타입
+  selector:
+    app: user-app                     # 해당 레이블을 가진 Pod에 요청 전달
+  ports:
+    - protocol: TCP
+      port: 60000                     # 클러스터 내부에서 사용하는 서비스 포트
+      targetPort: 60000              # 컨테이너의 포트
+      nodePort: 30001                # 외부에서 접근할 수 있는 노드 포트

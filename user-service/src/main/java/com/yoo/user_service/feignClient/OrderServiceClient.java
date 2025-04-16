@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
-@FeignClient(name = "order-service")
+// ✅ url = "${order-service-url}"을 통해 url 지정
+//    ㄴ> 기존 eureka-service가 아닌 configMap -> application.yml -> app 방식으로 값을 받아옴
+@FeignClient(name = "order-service", url = "${order-service-url}")
 public interface OrderServiceClient {
 
     @GetMapping("/order-service/{userId}/orders")
