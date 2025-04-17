@@ -26,6 +26,8 @@ dependencies {
   - "Eureka Server에 지정된 주소"를 사용할 경우 Discover Server에서 해당 도메인을 찾아 진행
   - 일반적인 "ip:port" 형식으로도 접근 가능하다.
     - gateway를 지정해서 구축하고 싶을 경우 사용하자
+- Discovery service를 사용하지 않을 경우 **URL 지정 필요**
+  - `@FeignClient(name = "order-service", url = "${order-service-url}")` <<- k8s configMap 에서 받아옴
 ```java
 @FeignClient(name = "order-service")
 public interface OrderServiceClient {
